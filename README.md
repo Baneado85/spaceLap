@@ -92,4 +92,4 @@ git push -u origin main
 
 ---
 
-Desarrollado con ❤️ para el **Grupo 6 - PUCP** 🎓
+Desarrollado con ❤️ para la PUCP
