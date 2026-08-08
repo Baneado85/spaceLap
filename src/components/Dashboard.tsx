@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { BookingRequest } from '../types';
-import { Clock, Plus, Calendar, CheckCircle2, AlertCircle, XCircle, QrCode } from 'lucide-react';
+import { BookingRequest, User } from '../types';
+import { Clock } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface DashboardProps {
-  requests: BookingRequest[];
+  activeRequest: BookingRequest | null;
+  user: User;
   onOpenNewBooking: () => void;
-  onSelectRequest: (req: BookingRequest) => void;
-  initialQuotaSeconds?: number;
+  onCancelRequest: (id: string) => void;
+  dailyQuotaSeconds?: number;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
-  requests,
+  activeRequest,
+  user,
   onOpenNewBooking,
-  onSelectRequest,
-  initialQuotaSeconds = 18000, // 5 hours
+  onCancelRequest,
+  dailyQuotaSeconds = 18000,
 }) => {
-  const [secondsRemaining, setSecondsRemaining] = useState(initialQuotaSeconds);
+  const [secondsRemaining, setSecondsRemaining] = useState(dailyQuotaSeconds);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
-  // Live timer simulation
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
@@ -32,114 +36,154 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}min ${String(seconds).padStart(2, '0')}s`;
   };
 
-  const getStatusBadge = (status: BookingRequest['status']) => {
-    switch (status) {
-      case 'approved':
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" /> Aprobado
-          </span>
-        );
-      case 'pending':
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
-            <AlertCircle className="w-3 h-3 mr-1 text-amber-600" /> Pendiente
-          </span>
-        );
-      case 'completed':
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800 border border-blue-200">
-            Finalizado
-          </span>
-        );
-      case 'cancelled':
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-            <XCircle className="w-3 h-3 mr-1 text-slate-500" /> Cancelado
-          </span>
-        );
-    }
+  const durationLabel = (start: string, end: string) => {
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    const totalMin = (eh * 60 + em) - (sh * 60 + sm);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return `${h}h${m > 0 ? ' ' + m + 'min' : ''}`;
   };
 
   return (
     <div className="flex-1 p-5 space-y-5 bg-[#F3F4F6] overflow-y-auto">
-      {/* Mis Solicitudes Card */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
-        <h2 className="text-sm font-bold text-slate-800 mb-3 font-heading flex items-center justify-between">
-          <span>Mis Solicitudes</span>
-          {requests.length > 0 && (
-            <span className="text-[11px] font-medium text-slate-500">
-              {requests.length} {requests.length === 1 ? 'solicitud' : 'solicitudes'}
-            </span>
-          )}
-        </h2>
-
-        {requests.length === 0 ? (
-          <div className="py-12 px-4 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-            <Calendar className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            <p className="text-xs text-slate-500 font-normal">
-              ¡Aún no has realizado ninguna solicitud!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-            {requests.map((req) => (
-              <div
-                key={req.id}
-                onClick={() => onSelectRequest(req)}
-                className="p-3 bg-slate-50 hover:bg-blue-50/60 rounded-xl border border-slate-200/80 cursor-pointer transition-all flex items-center justify-between group"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold text-[#002B66]">{req.labName}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    {req.date} &bull; {req.startTime} - {req.endTime}
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-end space-y-1.5">
-                  {getStatusBadge(req.status)}
-                  <button className="text-[10px] text-blue-600 font-semibold flex items-center opacity-70 group-hover:opacity-100 transition-opacity">
-                    <QrCode className="w-3 h-3 mr-1" /> QR
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Notificaciones Card */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
-        <h2 className="text-sm font-bold text-slate-800 mb-3 font-heading flex items-center">
-          <Clock className="w-4 h-4 text-[#002B66] mr-1.5" />
-          <span>Notificaciones</span>
-        </h2>
-
-        <div className="p-4 bg-blue-50/70 border border-blue-100 rounded-xl">
-          <p className="text-xs text-slate-700 font-medium leading-relaxed">
-            Tiempo restante hoy:{' '}
-            <span className="font-bold text-[#002B66] tracking-wide font-mono">
-              {formatTimer(secondsRemaining)}
-            </span>
-          </p>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Límite diario asignado para laboratorios PUCP: 5h 00m.
-          </p>
-        </div>
-      </div>
-
-      {/* Action Button: Nueva solicitud */}
-      <div className="pt-2">
-        <button
-          onClick={onOpenNewBooking}
-          className="w-full py-4 px-6 bg-[#002B66] hover:bg-[#001D47] active:scale-[0.99] text-white font-bold rounded-xl shadow-md shadow-blue-900/10 text-sm transition-all duration-150 flex items-center justify-center space-x-2"
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+    <h2 className="text-sm font-bold text-slate-800 mb-3">Mis Solicitudes</h2>h2>
+    
+      {activeRequest ? (
+      <div className="space-y-4">
+      <div className="flex items-center justify-between">
+      <div>
+      <p className="text-[11px] text-slate-500">Codigo de laptop</p>p>
+      <p className="text-sm font-bold text-slate-900">{activeRequest.laptopCode}</p>p>
+      </div>div>
+      <div className="text-right">
+      <p className="text-[11px] text-slate-500">Fecha</p>p>
+      <p className="text-sm font-bold text-slate-900">{activeRequest.date}</p>p>
+      </div>div>
+      </div>div>
+      
+      <div className="flex items-center justify-between">
+      <div>
+      <p className="text-[11px] text-slate-500">Hora de inicio</p>p>
+      <p className="text-sm font-bold text-slate-900">{activeRequest.startTime}</p>p>
+      </div>div>
+      <button
+        onClick={() => setShowQr(true)}
+        className="px-4 py-2 bg-[#042454] hover:bg-[#031944] text-white text-xs font-bold rounded-lg flex items-center space-x-1 transition-colors"
         >
-          <Plus className="w-5 h-5 text-pucp-accent" />
-          <span>Nueva solicitud</span>
-        </button>
-      </div>
-    </div>
-  );
+      <span>Ver QR</span>span>
+      <span>{'>>>'}</span>span>
+      </button>button>
+      </div>div>
+      
+      <div className="flex items-center justify-between">
+      <div>
+      <p className="text-[11px] text-slate-500">Hora de fin</p>p>
+      <p className="text-sm font-bold text-slate-900">{activeRequest.endTime}</p>p>
+      </div>div>
+      <button
+        onClick={() => setShowCancelConfirm(true)}
+        className="px-4 py-2 bg-[#CC2121] hover:bg-[#a81b1b] text-white text-xs font-bold rounded-lg transition-colors"
+        >
+      Cancelar
+      </button>button>
+      </div>div>
+      </div>div>
+      ) : (
+      <p className="text-sm text-slate-500 text-center py-6 italic">
+      Aun no has realizado ninguna solicitud!
+      </p>p>
+    )}
+    </div>div>
+    
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+    <h2 className="text-sm font-bold text-slate-800 mb-2 flex items-center space-x-2">
+    <Clock className="w-4 h-4 text-slate-500" />
+    <span>Notificaciones</span>span>
+    </h2>h2>
+      {activeRequest && (
+      <p className="text-xs text-slate-500 mb-2">
+      No olvides que tienes 10 minutos de tolerancia para recoger la laptop y no perder tu reserva.
+      </p>p>
+    )}
+    <p className="text-xs text-slate-700">
+    Tiempo restante hoy: <span className="font-bold text-[#042454]">{formatTimer(secondsRemaining)}</span>span>
+    </p>p>
+    </div>div>
+    
+    <button
+      onClick={onOpenNewBooking}
+      disabled={!!activeRequest}
+      className={`w-full py-3.5 rounded-xl text-sm font-bold transition-colors ${
+        activeRequest
+        ? 'bg-[#8F8E94] text-white cursor-not-allowed'
+        : 'bg-[#042454] hover:bg-[#031944] text-white'
+      }`}
+      >
+    + Nueva solicitud
+    </button>button>
+    
+      {showCancelConfirm && activeRequest && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-xs text-center space-y-4 shadow-xl">
+      <p className="text-sm text-slate-800 font-medium">
+      Estas seguro que quieres cancelar tu reserva?
+      </p>p>
+      <div className="flex space-x-3">
+      <button
+        onClick={() => setShowCancelConfirm(false)}
+        className="flex-1 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-semibold"
+        >
+      No
+      </button>button>
+      <button
+        onClick={() => {
+          onCancelRequest(activeRequest.id);
+          setShowCancelConfirm(false);
+        }}
+        className="flex-1 py-2 rounded-lg bg-[#CC2121] text-white text-sm font-semibold"
+        >
+      Si, cancelar
+      </button>button>
+      </div>div>
+      </div>div>
+      </div>div>
+    )}
+    
+      {showQr && activeRequest && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-xs space-y-4 shadow-xl relative">
+      <button
+        onClick={() => setShowQr(false)}
+        className="absolute top-3 right-3 text-red-500 font-bold"
+        >
+      X
+      </button>button>
+      <div className="flex items-center justify-between">
+      <div>
+      <p className="text-xs font-bold text-[#042454]">INICIO</p>p>
+      <p className="text-sm text-slate-800">{activeRequest.startTime}</p>p>
+      </div>div>
+      <p className="text-[11px] text-slate-500">{durationLabel(activeRequest.startTime, activeRequest.endTime)}</p>p>
+      <div className="text-right">
+      <p className="text-xs font-bold text-[#042454]">FIN</p>p>
+      <p className="text-sm text-slate-800">{activeRequest.endTime}</p>p>
+      </div>div>
+      </div>div>
+      <div className="flex items-center space-x-4 pt-2">
+      <div>
+      <p className="text-[11px] text-slate-500">Alumno</p>p>
+      <p className="text-sm font-bold text-slate-900">{user.fullName}</p>p>
+      <p className="text-[11px] text-slate-500 mt-2">Codigo</p>p>
+      <p className="text-sm font-bold text-slate-900">{user.studentCode}</p>p>
+      </div>div>
+      <QRCodeSVG value={activeRequest.qrCodeValue} size={100} />
+      </div>div>
+      </div>div>
+      </div>div>
+    )}
+    </div>div>
+    );
 };
+</div>
