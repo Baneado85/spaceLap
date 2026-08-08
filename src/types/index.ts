@@ -1,8 +1,6 @@
 export type TabType = 'requests' | 'home' | 'profile';
 
-export type BookingStatus = 'approved' | 'pending' | 'completed' | 'cancelled';
-
-export type LabCategory = 'computer_lab' | 'mac_lab' | 'study_cubicle' | 'meeting_room';
+export type BookingStatus = 'active' | 'completed' | 'cancelled';
 
 export interface User {
   studentCode: string;
@@ -11,32 +9,36 @@ export interface User {
   faculty: string;
   major: string;
   avatarUrl?: string;
-  dailyQuotaSeconds: number; // e.g. 5 hours = 18000 seconds
+  dailyQuotaSeconds: number;
+  weeklyQuotaSeconds: number;
 }
 
-export interface LabSpace {
+export interface TimeSlot {
+  start: string;
+  end: string;
+}
+
+export interface Laptop {
   id: string;
-  name: string;
-  building: string;
-  roomNumber: string;
-  category: LabCategory;
-  capacity: number;
-  availablePCs: number;
-  specs: string[];
-  description: string;
-  imageUrl?: string;
+  code: string;
+  brand: string;
+  model: string;
+  os: string;
+  ram: string;
+  processor: string;
+  available: boolean;
+  availableSlots: TimeSlot[];
 }
 
 export interface BookingRequest {
   id: string;
-  labId: string;
-  labName: string;
-  building: string;
+  laptopId: string;
+  laptopCode: string;
+  laptopModel: string;
   date: string;
   startTime: string;
   endTime: string;
   durationMinutes: number;
-  purpose: string;
   status: BookingStatus;
   qrCodeValue: string;
   createdAt: string;
