@@ -102,9 +102,10 @@ export function App() {
             <main className="flex-1 overflow-hidden flex flex-col relative">
               {activeTab === 'home' && (
                 <Dashboard
-                  requests={requests}
+                  activeRequest={requests.find((r) => r.status === 'active') ?? null}
+                  user={currentUser}
                   onOpenNewBooking={() => setIsNewBookingOpen(true)}
-                  onSelectRequest={() => setActiveTab('requests')}
+                  onCancelRequest={handleCancelRequest}
                 />
               )}
 

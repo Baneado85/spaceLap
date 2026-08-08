@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { availableLabs } from '../data/mockData';
-import { LabSpace, BookingRequest } from '../types';
-import { X, Check, Calendar as CalendarIcon, Clock, Laptop, ArrowRight, ArrowLeft, QrCode, Sparkles } from 'lucide-react';
+import { availableLaptops } from '../data/mockData';
+import { Laptop, BookingRequest, TimeSlot } from '../types';
+import { X, Check, Clock, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 
@@ -12,40 +12,41 @@ interface NewBookingWizardProps {
 
 export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onAddRequest }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [selectedLab, setSelectedLab] = useState<LabSpace>(availableLabs[0]);
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: string; end: string; duration: number }>({
-    start: '12:00',
-    end: '14:00',
-    duration: 120,
-  });
-  const [purpose, setPurpose] = useState('Proyecto de Curso / Práctica');
+  const [selectedBrand, setSelectedBrand] = useState<'Dell' | 'Lenovo'>('Lenovo');
+  const [selectedLaptop, setSelectedLaptop] = useState<Laptop | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [createdRequest, setCreatedRequest] = useState<BookingRequest | null>(null);
 
-  const timeSlots = [
-    { start: '08:00', end: '10:00', duration: 120 },
-    { start: '10:00', end: '12:00', duration: 120 },
-    { start: '12:00', end: '14:00', duration: 120 },
-    { start: '14:00', end: '16:00', duration: 120 },
-    { start: '16:00', end: '18:00', duration: 120 },
-    { start: '18:00', end: '20:00', duration: 120 },
-  ];
+  const filteredLaptops = availableLaptops.filter(
+    (l) => l.brand === selectedBrand && l.available
+  );
 
   const handleConfirm = () => {
+    if (!selectedLaptop || !startTime || !endTime) return;
+
+    const [sh, sm] = startTime.split(':').map(Number);
+    const [eh, em] = endTime.split(':').map(Number);
+    const durationMinutes = (eh * 60 + em) - (sh * 60 + sm);
+
     const randomId = `REQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const today = new Date().toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
     const newReq: BookingRequest = {
       id: randomId,
-      labId: selectedLab.id,
-      labName: selectedLab.name,
-      building: selectedLab.building,
-      date: selectedDate,
-      startTime: selectedTimeSlot.start,
-      endTime: selectedTimeSlot.end,
-      durationMinutes: selectedTimeSlot.duration,
-      purpose: purpose,
-      status: 'approved',
+      laptopId: selectedLaptop.id,
+      laptopCode: selectedLaptop.code,
+      laptopModel: selectedLaptop.model,
+      date: today,
+      startTime,
+      endTime,
+      durationMinutes,
+      status: 'active',
       qrCodeValue: `SPACELAP-PUCP-20211038-${randomId}`,
       createdAt: new Date().toLocaleString(),
     };
@@ -54,31 +55,33 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
     onAddRequest(newReq);
     setStep(4);
 
-    // Trigger celebration confetti
     try {
-      confetti({
-        particleCount: 60,
-        spread: 60,
-        origin: { y: 0.6 },
-      });
+      confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
     } catch {
-      // fallback if canvas error
+      // ignore
     }
+  };
+
+  const handleSlotSelect = (slot: TimeSlot, laptop: Laptop) => {
+    setSelectedLaptop(laptop);
+    setSelectedSlot(slot);
+    setStartTime(slot.start);
+    setEndTime(slot.end);
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto max-h-[700px] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
+      <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto max-h-[700px] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-4 px-6 bg-[#002B66] text-white flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-200">
               Paso {step} de 4
             </span>
-            <h3 className="text-base font-bold font-heading">
-              {step === 1 && 'Selecciona un Espacio'}
-              {step === 2 && 'Fecha y Horario'}
-              {step === 3 && 'Motivo de Reserva'}
+            <h3 className="text-base font-bold">
+              {step === 1 && 'Seleccionar Laptop'}
+              {step === 2 && 'Laptops Disponibles'}
+              {step === 3 && 'Horario de Reserva'}
               {step === 4 && '¡Reserva Confirmada!'}
             </h3>
           </div>
@@ -90,184 +93,123 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
           </button>
         </div>
 
-        {/* Content Body */}
+        {/* Content */}
         <div className="flex-1 p-5 overflow-y-auto space-y-4">
-          {/* STEP 1: Select Space */}
+          {/* STEP 1: Select brand */}
           {step === 1 && (
-            <div className="space-y-3">
-              <p className="text-xs text-slate-500 font-medium">
-                Elige el laboratorio o cubículo PUCP que necesitas:
-              </p>
-              {availableLabs.map((lab) => (
+            <div className="space-y-4">
+              <p className="text-xs text-slate-500 font-medium">Elige el modelo de laptop:</p>
+              {(['Dell', 'Lenovo'] as const).map((brand) => (
                 <div
-                  key={lab.id}
-                  onClick={() => setSelectedLab(lab)}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    selectedLab.id === lab.id
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                    selectedBrand === brand
                       ? 'border-[#002B66] bg-blue-50/60 shadow-sm'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900">{lab.name}</h4>
-                      <p className="text-[11px] text-slate-500 font-medium">{lab.building}</p>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">{brand}</h4>
+                    <p className="text-[11px] text-slate-500">
+                      {brand === 'Dell' ? 'Dell Inspiron 3520, 15.6"' : 'Lenovo ThinkPad E14'}
+                    </p>
+                  </div>
+                  {selectedBrand === brand && (
+                    <div className="w-5 h-5 bg-[#002B66] text-white rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3" />
                     </div>
-                    {selectedLab.id === lab.id && (
-                      <div className="w-5 h-5 bg-[#002B66] text-white rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {lab.specs.slice(0, 3).map((spec, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded font-medium"
-                      >
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-2 text-[10px] text-emerald-700 font-semibold flex items-center">
-                    <Laptop className="w-3 h-3 mr-1 text-emerald-600" />
-                    {lab.availablePCs} equipos disponibles ahora
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
 
-          {/* STEP 2: Select Date & Time */}
+          {/* STEP 2: Available laptops with slots */}
           {step === 2 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Fecha de Reserva
-                </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#002B66] focus:outline-none"
-                />
-              </div>
+            <div className="space-y-3">
+              <p className="text-[11px] text-slate-500">
+                Cada laptop cuenta con una disponibilidad inicial de 8 horas durante el transcurso del día.
+              </p>
+              {filteredLaptops.length === 0 ? (
+                <p className="text-center text-slate-500 text-xs py-8">
+                  No hay laptops {selectedBrand} disponibles hoy.
+                </p>
+              ) : (
+                filteredLaptops.map((laptop) => (
+                  <LaptopSlotCard
+                    key={laptop.id}
+                    laptop={laptop}
+                    selectedLaptop={selectedLaptop}
+                    selectedSlot={selectedSlot}
+                    onSelectSlot={(slot) => handleSlotSelect(slot, laptop)}
+                  />
+                ))
+              )}
+            </div>
+          )}
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Bloque Horario Disponible
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {timeSlots.map((slot, i) => {
-                    const isSelected =
-                      selectedTimeSlot.start === slot.start && selectedTimeSlot.end === slot.end;
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setSelectedTimeSlot(slot)}
-                        className={`p-3 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center transition-all ${
-                          isSelected
-                            ? 'border-[#002B66] bg-[#002B66] text-white shadow-sm'
-                            : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <Clock className="w-4 h-4 mb-1 opacity-80" />
-                        <span>
-                          {slot.start} - {slot.end}
-                        </span>
-                        <span className="text-[10px] opacity-75 font-normal">2 horas</span>
-                      </button>
-                    );
-                  })}
+          {/* STEP 3: Confirm time */}
+          {step === 3 && selectedLaptop && (
+            <div className="space-y-5">
+              <div className="w-full h-40 bg-slate-100 rounded-xl flex items-center justify-center">
+                <span className="text-slate-400 text-sm">{selectedLaptop.brand} {selectedLaptop.model}</span>
+              </div>
+              <p className="text-[11px] text-slate-500 text-center">
+                Selecciona tu horario de reserva según los horarios disponibles.
+              </p>
+              <div className="text-[11px] text-slate-500 text-right mb-1">Formato de 24 horas</div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700">Ingrese la hora de inicio:</label>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-28 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#002B66] focus:outline-none"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700">Ingrese la hora de fin:</label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="w-28 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#002B66] focus:outline-none"
+                  />
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 3: Purpose */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Finalidad de la Reserva
-                </label>
-                <select
-                  value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#002B66] focus:outline-none"
-                >
-                  <option value="Proyecto de Curso / Práctica">Proyecto de Curso / Práctica</option>
-                  <option value="Estudio Individual de Exámenes">Estudio Individual de Exámenes</option>
-                  <option value="Trabajo de Investigación / Tesis">Trabajo de Investigación / Tesis</option>
-                  <option value="Reunión de Equipo de Ingeniería">Reunión de Equipo de Ingeniería</option>
-                </select>
-              </div>
-
-              {/* Booking Summary Box */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-                <h4 className="text-xs font-bold text-slate-900 border-b border-slate-200 pb-2">
-                  Resumen de la Solicitud
-                </h4>
-                <div className="text-xs text-slate-600 space-y-1">
-                  <p>
-                    <span className="font-semibold text-slate-800">Espacio:</span> {selectedLab.name}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-slate-800">Ubicación:</span> {selectedLab.building}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-slate-800">Fecha:</span> {selectedDate}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-slate-800">Horario:</span> {selectedTimeSlot.start} -{' '}
-                    {selectedTimeSlot.end} (2 hrs)
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4: Success & QR Code */}
+          {/* STEP 4: Success */}
           {step === 4 && createdRequest && (
             <div className="flex flex-col items-center justify-center text-center space-y-4 py-2">
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
               </div>
-
               <div>
-                <h4 className="text-sm font-bold text-slate-900">
-                  Solicitud Registrada con Éxito
-                </h4>
+                <h4 className="text-sm font-bold text-slate-900">Solicitud Registrada con Éxito</h4>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Presenta este código QR en el ingreso al laboratorio
+                  Presenta este código QR al recoger la laptop
                 </p>
               </div>
-
-              {/* QR Code */}
               <div className="p-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
                 <QRCodeSVG value={createdRequest.qrCodeValue} size={150} />
-                <p className="text-[10px] font-mono text-slate-500 font-bold mt-2">
-                  {createdRequest.id}
-                </p>
+                <p className="text-[10px] font-mono text-slate-500 font-bold mt-2">{createdRequest.id}</p>
               </div>
-
               <div className="w-full text-left p-3 bg-blue-50 border border-blue-100 rounded-xl text-[11px] text-slate-600 space-y-1">
-                <p>
-                  <strong className="text-[#002B66]">Laboratorio:</strong> {createdRequest.labName}
-                </p>
-                <p>
-                  <strong className="text-[#002B66]">Fecha y Hora:</strong> {createdRequest.date} ({createdRequest.startTime} - {createdRequest.endTime})
+                <p><strong className="text-[#002B66]">Laptop:</strong> {createdRequest.laptopCode} – {createdRequest.laptopModel}</p>
+                <p><strong className="text-[#002B66]">Horario:</strong> {createdRequest.startTime} – {createdRequest.endTime}</p>
+                <p className="text-red-600 text-[10px]">
+                  Recuerda: De no recoger el dispositivo después de 10 minutos de iniciado la reserva esta se cancelará automáticamente.
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer Navigation Buttons */}
+        {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
           {step > 1 && step < 4 ? (
             <button
@@ -275,7 +217,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
               className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Atrás</span>
+              <span>← Volver</span>
             </button>
           ) : (
             <div />
@@ -284,7 +226,8 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
           {step < 3 && (
             <button
               onClick={() => setStep((s) => (s + 1) as 2 | 3)}
-              className="px-5 py-2.5 bg-[#002B66] hover:bg-[#001D47] text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
+              disabled={step === 2 && !selectedSlot}
+              className="px-5 py-2.5 bg-[#002B66] hover:bg-[#001D47] disabled:bg-slate-300 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
             >
               <span>Siguiente</span>
               <ArrowRight className="w-4 h-4" />
@@ -294,9 +237,10 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
           {step === 3 && (
             <button
               onClick={handleConfirm}
-              className="px-5 py-2.5 bg-[#F5BE15] hover:bg-[#e0ac10] text-slate-950 text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
+              disabled={!startTime || !endTime}
+              className="px-5 py-2.5 bg-[#002B66] hover:bg-[#001D47] disabled:bg-slate-300 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
             >
-              <span>Confirmar Reserva</span>
+              <span>Aceptar</span>
             </button>
           )}
 
@@ -310,6 +254,65 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+interface LaptopSlotCardProps {
+  laptop: Laptop;
+  selectedLaptop: Laptop | null;
+  selectedSlot: TimeSlot | null;
+  onSelectSlot: (slot: TimeSlot) => void;
+}
+
+const LaptopSlotCard: React.FC<LaptopSlotCardProps> = ({
+  laptop, selectedLaptop, selectedSlot, onSelectSlot,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const totalMins = laptop.availableSlots.reduce((acc, s) => {
+    const [sh, sm] = s.start.split(':').map(Number);
+    const [eh, em] = s.end.split(':').map(Number);
+    return acc + (eh * 60 + em) - (sh * 60 + sm);
+  }, 0);
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  const label = m > 0 ? `${h}h ${m}min` : `${h}h`;
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <button
+        onClick={() => setExpanded((e) => !e)}
+        className="w-full flex items-center justify-between p-4 text-left"
+      >
+        <div>
+          <p className="text-xs font-bold text-slate-900">{laptop.code}</p>
+          <p className="text-[11px] text-slate-500">Disponibilidad: {label}</p>
+        </div>
+        <span className="text-slate-500 text-sm">{expanded ? '∧' : '∨'}</span>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 flex flex-wrap gap-2">
+          {laptop.availableSlots.map((slot, i) => {
+            const isSelected =
+              selectedLaptop?.id === laptop.id &&
+              selectedSlot?.start === slot.start &&
+              selectedSlot?.end === slot.end;
+            return (
+              <button
+                key={i}
+                onClick={() => onSelectSlot(slot)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors ${
+                  isSelected
+                    ? 'bg-[#042454] text-white border-[#042454]'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {slot.start} – {slot.end} hrs
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
