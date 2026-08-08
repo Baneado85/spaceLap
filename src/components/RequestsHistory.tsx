@@ -97,6 +97,7 @@ export const RequestsHistory: React.FC<RequestsHistoryProps> = ({ requests, onCa
                   <span className="font-semibold text-slate-700">Horario:</span>{' '}
                   {req.startTime} – {req.endTime}
                 </p>
+                <p><span className="font-semibold text-slate-700">Ubicación:</span> {req.zoneName}</p>
               </div>
 
               <div className="flex items-center justify-between pt-1">
@@ -145,6 +146,7 @@ export const RequestsHistory: React.FC<RequestsHistoryProps> = ({ requests, onCa
               <p className="text-[11px]">
                 {selectedQRReq.date} ({selectedQRReq.startTime} – {selectedQRReq.endTime})
               </p>
+              <p className="text-[11px]">{selectedQRReq.zoneName}</p>
               <p className="text-[10px] font-mono text-slate-400 pt-1">{selectedQRReq.id}</p>
             </div>
             <div className="w-full glass-panel rounded-xl p-2.5 flex items-center justify-center space-x-2 text-[11px] text-slate-600">

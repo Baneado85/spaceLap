@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { BookingRequest, User } from '../types';
+import { BookingRequest, Laptop, User } from '../types';
 import { Clock, Hash } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { LaptopArt } from './LaptopArt';
+import { LaptopHero } from './LaptopHero';
+import { featuredLaptops } from '../data/mockData';
 
 interface DashboardProps {
   activeRequest: BookingRequest | null;
   user: User;
   onOpenNewBooking: () => void;
   onCancelRequest: (id: string) => void;
+  onSelectFeaturedLaptop: (laptop: Laptop) => void;
   dailyQuotaSeconds?: number;
 }
 
@@ -17,6 +20,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   user,
   onOpenNewBooking,
   onCancelRequest,
+  onSelectFeaturedLaptop,
   dailyQuotaSeconds = 18000,
 }) => {
   const [secondsRemaining, setSecondsRemaining] = useState(dailyQuotaSeconds);
@@ -48,6 +52,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="flex-1 p-5 space-y-5 bg-[#F3F4F6] overflow-y-auto">
+      <div className="-mx-5 px-5">
+        <h2 className="text-sm font-bold text-slate-800 mb-2">Laptops Destacadas</h2>
+        <div className="flex space-x-3 overflow-x-auto snap-x snap-mandatory pb-1 -mx-5 px-5 no-scrollbar">
+          {featuredLaptops.map((laptop) => (
+            <button
+              key={laptop.id}
+              onClick={() => onSelectFeaturedLaptop(laptop)}
+              className="snap-center flex-shrink-0 w-[78%] text-left"
+            >
+              <LaptopHero laptop={laptop} />
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="relative overflow-hidden rounded-2xl glass-panel-dark p-5 text-white shadow-lg">
         <span className="blob w-28 h-28 bg-pucp-sky/40 -top-10 -right-10" />
         <span className="blob w-24 h-24 bg-pucp-skyDeep/30 -bottom-12 -left-8" />
@@ -72,6 +91,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <p className="text-[11px] text-pucp-skyLight">Horario</p>
                 <p className="text-sm font-bold text-white">{activeRequest.startTime} – {activeRequest.endTime}</p>
               </div>
+            </div>
+
+            <div>
+              <p className="text-[11px] text-pucp-skyLight">Ubicación en campus</p>
+              <p className="text-sm font-bold text-white">{activeRequest.zoneName}</p>
             </div>
 
             <div className="flex items-center justify-between pt-1">
@@ -163,6 +187,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </button>
             <div className="text-center pt-2">
               <h4 className="text-sm font-bold text-slate-900">{activeRequest.laptopName}</h4>
+              <p className="text-[11px] text-slate-500">{activeRequest.zoneName}</p>
             </div>
             <div className="flex items-center justify-between pt-1">
               <div>

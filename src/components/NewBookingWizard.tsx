@@ -1,36 +1,54 @@
 import React, { useMemo, useState } from 'react';
 import { availableLaptops } from '../data/mockData';
-import { Laptop, BookingRequest, TimeSlot } from '../types';
-import { X, Check, Clock, ArrowRight, ArrowLeft, Sparkles, Cpu, MemoryStick, MonitorSmartphone, Hash } from 'lucide-react';
+import { Laptop, BookingRequest, TimeSlot, CampusZone } from '../types';
+import { X, Check, ArrowRight, ArrowLeft, Sparkles, Cpu, MemoryStick, MonitorSmartphone, Hash, MapPin } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import { LaptopArt } from './LaptopArt';
+import { CampusMap } from './CampusMap';
+
+type Step = 1 | 2 | 3 | 4 | 5;
 
 interface NewBookingWizardProps {
+  initialLaptop?: Laptop | null;
   onClose: () => void;
   onAddRequest: (request: BookingRequest) => void;
 }
 
-export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onAddRequest }) => {
+export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ initialLaptop, onClose, onAddRequest }) => {
   const brands = useMemo(
     () => Array.from(new Set(availableLaptops.map((l) => l.brand))),
     []
   );
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [selectedBrand, setSelectedBrand] = useState<string>(brands[0]);
+  const minStep: Step = initialLaptop ? 2 : 1;
+  const totalSteps = initialLaptop ? 4 : 5;
+
+  const [step, setStep] = useState<Step>(minStep);
+  const [selectedBrand, setSelectedBrand] = useState<string>(initialLaptop?.brand ?? brands[0]);
   const [selectedLaptop, setSelectedLaptop] = useState<Laptop | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [selectedZone, setSelectedZone] = useState<CampusZone | null>(null);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [createdRequest, setCreatedRequest] = useState<BookingRequest | null>(null);
 
-  const filteredLaptops = availableLaptops.filter(
-    (l) => l.brand === selectedBrand && l.available
-  );
+  const filteredLaptops = initialLaptop
+    ? [initialLaptop]
+    : availableLaptops.filter((l) => l.brand === selectedBrand && l.available);
+
+  const displayStep = initialLaptop ? step - 1 : step;
+
+  const stepTitle = (s: Step) => {
+    if (s === 1) return 'Elige una marca';
+    if (s === 2) return 'Laptops disponibles';
+    if (s === 3) return 'Elige tu ubicación en el campus';
+    if (s === 4) return 'Horario de reserva';
+    return '¡Reserva confirmada!';
+  };
 
   const handleConfirm = () => {
-    if (!selectedLaptop || !startTime || !endTime) return;
+    if (!selectedLaptop || !selectedZone || !startTime || !endTime) return;
 
     const [sh, sm] = startTime.split(':').map(Number);
     const [eh, em] = endTime.split(':').map(Number);
@@ -50,6 +68,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
       laptopBrand: selectedLaptop.brand,
       laptopCode: selectedLaptop.code,
       laptopModel: selectedLaptop.model,
+      zoneName: selectedZone.name,
       date: today,
       startTime,
       endTime,
@@ -61,7 +80,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
 
     setCreatedRequest(newReq);
     onAddRequest(newReq);
-    setStep(4);
+    setStep(5);
 
     try {
       confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
@@ -84,14 +103,9 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
         <div className="p-4 px-6 bg-glass-sky glass-panel-dark text-white flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase tracking-wider font-semibold text-pucp-skyLight">
-              Paso {step} de 4
+              Paso {displayStep} de {totalSteps}
             </span>
-            <h3 className="text-base font-bold">
-              {step === 1 && 'Elige una marca'}
-              {step === 2 && 'Laptops disponibles'}
-              {step === 3 && 'Horario de reserva'}
-              {step === 4 && '¡Reserva confirmada!'}
-            </h3>
+            <h3 className="text-base font-bold">{stepTitle(step)}</h3>
           </div>
           <button
             onClick={onClose}
@@ -153,6 +167,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
                     laptop={laptop}
                     selectedLaptop={selectedLaptop}
                     selectedSlot={selectedSlot}
+                    defaultExpanded={!!initialLaptop}
                     onSelectSlot={(slot) => handleSlotSelect(slot, laptop)}
                   />
                 ))
@@ -160,8 +175,18 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
             </div>
           )}
 
-          {/* STEP 3: Confirm time */}
-          {step === 3 && selectedLaptop && (
+          {/* STEP 3: Campus zone map */}
+          {step === 3 && (
+            <div className="space-y-3">
+              <p className="text-[11px] text-slate-500">
+                Selecciona el pabellón o zona del campus PUCP donde usarás la laptop.
+              </p>
+              <CampusMap selectedZoneId={selectedZone?.id ?? null} onSelect={setSelectedZone} />
+            </div>
+          )}
+
+          {/* STEP 4: Confirm time */}
+          {step === 4 && selectedLaptop && (
             <div className="space-y-5">
               <div className="relative rounded-2xl overflow-hidden">
                 <LaptopArt brand={selectedLaptop.brand} size="lg" />
@@ -172,6 +197,16 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
               </div>
 
               <SpecsPanel laptop={selectedLaptop} />
+
+              {selectedZone && (
+                <div className="glass-panel rounded-xl p-3 flex items-center space-x-2">
+                  <MapPin className="w-4 h-4 text-pucp-skyDeep flex-shrink-0" />
+                  <div>
+                    <p className="text-[9px] uppercase tracking-wide text-slate-400 font-semibold">Ubicación</p>
+                    <p className="text-xs font-bold text-slate-800">{selectedZone.name}</p>
+                  </div>
+                </div>
+              )}
 
               <p className="text-[11px] text-slate-500 text-center">
                 Selecciona tu horario de reserva según los horarios disponibles.
@@ -200,8 +235,8 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
             </div>
           )}
 
-          {/* STEP 4: Success */}
-          {step === 4 && createdRequest && selectedLaptop && (
+          {/* STEP 5: Success */}
+          {step === 5 && createdRequest && selectedLaptop && (
             <div className="flex flex-col items-center justify-center text-center space-y-4 py-2">
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
@@ -218,6 +253,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
               </div>
               <div className="w-full text-left p-3 glass-panel rounded-xl text-[11px] text-slate-700 space-y-1">
                 <p><strong className="text-pucp-navy">Laptop:</strong> {createdRequest.laptopName}</p>
+                <p><strong className="text-pucp-navy">Ubicación:</strong> {createdRequest.zoneName}</p>
                 <p><strong className="text-pucp-navy">Horario:</strong> {createdRequest.startTime} – {createdRequest.endTime}</p>
                 <p className="text-red-600 text-[10px]">
                   Recuerda: De no recoger el dispositivo después de 10 minutos de iniciado la reserva esta se cancelará automáticamente.
@@ -230,9 +266,9 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
 
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          {step > 1 && step < 4 ? (
+          {step > minStep && step < 5 ? (
             <button
-              onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}
+              onClick={() => setStep((s) => (s - 1) as Step)}
               className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -242,10 +278,10 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
             <div />
           )}
 
-          {step < 3 && (
+          {step < 4 && (
             <button
-              onClick={() => setStep((s) => (s + 1) as 2 | 3)}
-              disabled={step === 2 && !selectedSlot}
+              onClick={() => setStep((s) => (s + 1) as Step)}
+              disabled={(step === 2 && !selectedSlot) || (step === 3 && !selectedZone)}
               className="px-5 py-2.5 bg-pucp-navy hover:bg-pucp-dark disabled:bg-slate-300 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
             >
               <span>Siguiente</span>
@@ -253,7 +289,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
             </button>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <button
               onClick={handleConfirm}
               disabled={!startTime || !endTime}
@@ -263,7 +299,7 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ onClose, onA
             </button>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <button
               onClick={onClose}
               className="w-full py-3 bg-pucp-navy text-white text-xs font-bold rounded-xl shadow transition-colors"
@@ -302,13 +338,14 @@ interface LaptopSlotCardProps {
   laptop: Laptop;
   selectedLaptop: Laptop | null;
   selectedSlot: TimeSlot | null;
+  defaultExpanded?: boolean;
   onSelectSlot: (slot: TimeSlot) => void;
 }
 
 const LaptopSlotCard: React.FC<LaptopSlotCardProps> = ({
-  laptop, selectedLaptop, selectedSlot, onSelectSlot,
+  laptop, selectedLaptop, selectedSlot, defaultExpanded, onSelectSlot,
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(!!defaultExpanded);
   const totalMins = laptop.availableSlots.reduce((acc, s) => {
     const [sh, sm] = s.start.split(':').map(Number);
     const [eh, em] = s.end.split(':').map(Number);

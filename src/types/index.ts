@@ -29,6 +29,18 @@ export interface Laptop {
   processor: string;
   available: boolean;
   availableSlots: TimeSlot[];
+  tagline: string;
+  benefits: string[];
+  featured?: boolean;
+}
+
+export interface CampusZone {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  x: number;
+  y: number;
 }
 
 export interface BookingRequest {
@@ -38,6 +50,7 @@ export interface BookingRequest {
   laptopBrand: string;
   laptopCode: string;
   laptopModel: string;
+  zoneName: string;
   date: string;
   startTime: string;
   endTime: string;

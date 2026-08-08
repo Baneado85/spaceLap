@@ -22,6 +22,12 @@ export const availableLaptops: Laptop[] = [
     processor: 'Core i5',
     available: false,
     availableSlots: [],
+    tagline: 'Equilibrio perfecto entre rendimiento y portabilidad.',
+    benefits: [
+      'Pantalla Full HD de 15.6" para trabajar cómodo',
+      'Ideal para clases, informes y hojas de cálculo',
+      'Batería pensada para toda la jornada académica',
+    ],
   },
   {
     id: 'laptop-2',
@@ -37,6 +43,13 @@ export const availableLaptops: Laptop[] = [
       { start: '09:00', end: '10:30' },
       { start: '13:00', end: '15:30' },
       ],
+    tagline: 'Resistencia y productividad de nivel profesional.',
+    benefits: [
+      'Teclado ergonómico retroiluminado',
+      'Chasis con certificación de resistencia militar',
+      'Multitarea fluida con 16GB de memoria RAM',
+    ],
+    featured: true,
   },
   {
     id: 'laptop-3',
@@ -53,6 +66,12 @@ export const availableLaptops: Laptop[] = [
       { start: '12:00', end: '13:00' },
       { start: '15:00', end: '17:30' },
       ],
+    tagline: 'Resistencia y productividad de nivel profesional.',
+    benefits: [
+      'Teclado ergonómico retroiluminado',
+      'Chasis con certificación de resistencia militar',
+      'Multitarea fluida con 16GB de memoria RAM',
+    ],
   },
   {
     id: 'laptop-4',
@@ -67,6 +86,12 @@ export const availableLaptops: Laptop[] = [
     availableSlots: [
       { start: '10:00', end: '12:00' },
       ],
+    tagline: 'Resistencia y productividad de nivel profesional.',
+    benefits: [
+      'Teclado ergonómico retroiluminado',
+      'Chasis con certificación de resistencia militar',
+      'Buen desempeño para tareas de oficina',
+    ],
   },
   {
     id: 'laptop-5',
@@ -82,6 +107,12 @@ export const availableLaptops: Laptop[] = [
       { start: '11:00', end: '13:00' },
       { start: '16:00', end: '18:00' },
       ],
+    tagline: 'Equilibrio perfecto entre rendimiento y portabilidad.',
+    benefits: [
+      'Pantalla Full HD de 15.6" para trabajar cómodo',
+      'Ideal para clases, informes y hojas de cálculo',
+      'Batería pensada para toda la jornada académica',
+    ],
   },
   {
     id: 'laptop-6',
@@ -97,6 +128,12 @@ export const availableLaptops: Laptop[] = [
       { start: '09:00', end: '11:00' },
       { start: '14:00', end: '16:30' },
       ],
+    tagline: 'Potencia silenciosa, diseño icónico.',
+    benefits: [
+      'Chip Apple M2 ultra eficiente',
+      'Pantalla Liquid Retina de gran nitidez',
+      'Hasta 18 horas de batería',
+    ],
   },
   {
     id: 'laptop-7',
@@ -112,21 +149,35 @@ export const availableLaptops: Laptop[] = [
       { start: '08:30', end: '10:00' },
       { start: '12:30', end: '14:30' },
       ],
+    tagline: 'Rendimiento profesional para creadores.',
+    benefits: [
+      'Chip Apple M3 de alto rendimiento',
+      'Pantalla Liquid Retina XDR',
+      'Ideal para edición, diseño y programación',
+    ],
+    featured: true,
   },
   {
     id: 'laptop-8',
-    name: 'HP Pavilion x360',
+    name: 'HP Victus 16',
     code: 'C72110058',
     brand: 'HP',
-    model: 'HP Pavilion x360 14"',
+    model: 'HP Victus 16 Gaming',
     os: 'Windows 11',
-    ram: '8GB',
-    processor: 'Core i5',
+    ram: '16GB',
+    processor: 'Core i7',
     available: true,
     availableSlots: [
       { start: '10:30', end: '12:30' },
       { start: '15:30', end: '17:00' },
       ],
+    tagline: 'Rendimiento gamer para tus proyectos más exigentes.',
+    benefits: [
+      'Gráficos dedicados para renderizado y modelado 3D',
+      'Sistema de refrigeración avanzado',
+      'Pantalla de alta tasa de refresco',
+    ],
+    featured: true,
   },
   {
     id: 'laptop-9',
@@ -142,8 +193,17 @@ export const availableLaptops: Laptop[] = [
       { start: '09:30', end: '11:30' },
       { start: '13:30', end: '15:00' },
       ],
+    tagline: 'Colores vibrantes, diseño ultradelgado.',
+    benefits: [
+      'Pantalla OLED de colores precisos',
+      'Chasis ultraligero en aluminio',
+      'Perfecta para diseño gráfico y multimedia',
+    ],
+    featured: true,
   },
   ];
+
+export const featuredLaptops: Laptop[] = availableLaptops.filter((l) => l.featured);
 
 export const initialRequests: BookingRequest[] = [
   {
@@ -153,6 +213,7 @@ export const initialRequests: BookingRequest[] = [
     laptopBrand: 'Dell',
     laptopCode: 'C10410009',
     laptopModel: 'Dell Inspiron 3520, 15.6\"',
+    zoneName: 'Biblioteca Central',
     date: '2026-08-01',
     startTime: '10:00',
     endTime: '12:30',
@@ -168,6 +229,7 @@ export const initialRequests: BookingRequest[] = [
     laptopBrand: 'Lenovo',
     laptopCode: 'C10210026',
     laptopModel: 'Lenovo ThinkPad E14',
+    zoneName: 'Complejo de Innovación Académica',
     date: '2026-07-31',
     startTime: '09:00',
     endTime: '12:45',

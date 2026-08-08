@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TabType, BookingRequest } from './types';
+import { TabType, BookingRequest, Laptop } from './types';
 import { currentUser, initialRequests } from './data/mockData';
 import { LoginScreen } from './components/LoginScreen';
 import { Header } from './components/Header';
@@ -8,6 +8,7 @@ import { RequestsHistory } from './components/RequestsHistory';
 import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNav } from './components/BottomNav';
 import { NewBookingWizard } from './components/NewBookingWizard';
+import { LaptopDetailScreen } from './components/LaptopDetailScreen';
 import { LogoutModal } from './components/LogoutModal';
 import { Smartphone, Monitor } from 'lucide-react';
 
@@ -18,6 +19,8 @@ export function App() {
 
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
+  const [bookingInitialLaptop, setBookingInitialLaptop] = useState<Laptop | null>(null);
+  const [detailLaptop, setDetailLaptop] = useState<Laptop | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isPhoneFrame, setIsPhoneFrame] = useState(true);
 
@@ -106,6 +109,7 @@ export function App() {
                   user={currentUser}
                   onOpenNewBooking={() => setIsNewBookingOpen(true)}
                   onCancelRequest={handleCancelRequest}
+                  onSelectFeaturedLaptop={(laptop) => setDetailLaptop(laptop)}
                 />
               )}
 
@@ -130,10 +134,27 @@ export function App() {
         )}
       </div>
 
+      {/* Laptop Detail Screen (poster tap) */}
+      {detailLaptop && (
+        <LaptopDetailScreen
+          laptop={detailLaptop}
+          onClose={() => setDetailLaptop(null)}
+          onReserve={(laptop) => {
+            setBookingInitialLaptop(laptop);
+            setDetailLaptop(null);
+            setIsNewBookingOpen(true);
+          }}
+        />
+      )}
+
       {/* New Booking Wizard Modal */}
       {isNewBookingOpen && (
         <NewBookingWizard
-          onClose={() => setIsNewBookingOpen(false)}
+          initialLaptop={bookingInitialLaptop}
+          onClose={() => {
+            setIsNewBookingOpen(false);
+            setBookingInitialLaptop(null);
+          }}
           onAddRequest={handleAddRequest}
         />
       )}
