@@ -10,7 +10,7 @@ import { BottomNav } from './components/BottomNav';
 import { NewBookingWizard } from './components/NewBookingWizard';
 import { LaptopDetailScreen } from './components/LaptopDetailScreen';
 import { LogoutModal } from './components/LogoutModal';
-import { Smartphone, Monitor } from 'lucide-react';
+import { Smartphone, Monitor, ShieldCheck, Wifi } from 'lucide-react';
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -62,47 +62,62 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b1329] flex flex-col items-center justify-center p-0 sm:p-6 select-none relative font-sans">
-      {/* Desktop view mode toggle */}
-      <div className="hidden sm:flex items-center space-x-2 fixed top-4 right-4 z-50 bg-slate-800/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700 text-xs text-slate-300 shadow-lg">
-        <span className="font-semibold text-blue-300 mr-1">Vista SpaceLap:</span>
+    <div className="min-h-screen bg-[#050609] flex flex-col items-center justify-center p-0 sm:p-6 select-none relative font-sans text-white">
+      {/* Desktop view mode switcher */}
+      <div className="hidden sm:flex items-center space-x-2 fixed top-4 right-4 z-50 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs text-slate-300 shadow-2xl">
+        <span className="font-extrabold text-[#00F0FF] mr-1">Vista SpaceLap:</span>
         <button
           onClick={() => setIsPhoneFrame(true)}
-          className={`p-1.5 rounded-lg flex items-center space-x-1 transition-colors ${
-            isPhoneFrame ? 'bg-[#002B66] text-white' : 'hover:bg-slate-700 text-slate-400'
+          className={`px-3 py-1.5 rounded-full flex items-center space-x-1.5 font-bold transition-all ${
+            isPhoneFrame
+              ? 'bg-[#00F0FF] text-black shadow-[0_0_12px_rgba(0,240,255,0.4)]'
+              : 'hover:bg-slate-800 text-slate-400'
           }`}
         >
-          <Smartphone className="w-4 h-4" />
-          <span>Móvil (Figma)</span>
+          <Smartphone className="w-3.5 h-3.5" />
+          <span>Móvil iPhone</span>
         </button>
         <button
           onClick={() => setIsPhoneFrame(false)}
-          className={`p-1.5 rounded-lg flex items-center space-x-1 transition-colors ${
-            !isPhoneFrame ? 'bg-[#002B66] text-white' : 'hover:bg-slate-700 text-slate-400'
+          className={`px-3 py-1.5 rounded-full flex items-center space-x-1.5 font-bold transition-all ${
+            !isPhoneFrame
+              ? 'bg-[#00F0FF] text-black shadow-[0_0_12px_rgba(0,240,255,0.4)]'
+              : 'hover:bg-slate-800 text-slate-400'
           }`}
         >
-          <Monitor className="w-4 h-4" />
+          <Monitor className="w-3.5 h-3.5" />
           <span>Pantalla Completa</span>
         </button>
       </div>
 
-      {/* Main Application Container */}
+      {/* Main Container */}
       <div
-        className={`w-full bg-[#F3F4F6] flex flex-col overflow-hidden transition-all duration-300 relative ${
+        className={`w-full bg-[#090A0F] flex flex-col overflow-hidden transition-all duration-300 relative ${
           isPhoneFrame
             ? 'phone-frame'
-            : 'min-h-screen max-w-4xl rounded-2xl shadow-2xl border border-slate-800'
+            : 'min-h-screen max-w-md rounded-3xl shadow-2xl border border-white/10'
         }`}
       >
+        {/* iPhone Dynamic Island Bar */}
+        {isPhoneFrame && (
+          <div className="dynamic-island">
+            <span className="text-[10px] font-bold text-white font-mono pl-1">9:41</span>
+            <div className="w-3 h-3 rounded-full bg-slate-900 border border-white/20" />
+            <div className="flex items-center space-x-1 pr-1 text-slate-400">
+              <Wifi className="w-3 h-3" />
+            </div>
+          </div>
+        )}
+
         {!isAuthenticated ? (
           <LoginScreen onLogin={handleLogin} />
         ) : (
-          <div className="flex flex-col h-full w-full bg-[#F3F4F6] overflow-hidden">
-            {/* Top Bar / Header */}
+          <div className="flex flex-col h-full w-full bg-[#090A0F] overflow-hidden">
+            {/* Top Bar Header */}
             <Header user={currentUser} />
 
-            {/* Dynamic View Content based on Tab */}
-            <main className="flex-1 overflow-hidden flex flex-col relative">
+            {/* View Content */}
+            <main className="flex-1 overflow-hidden flex flex-col relative bg-[#090A0F]">
               {activeTab === 'home' && (
                 <Dashboard
                   activeRequest={requests.find((r) => r.status === 'active') ?? null}
@@ -128,13 +143,13 @@ export function App() {
               )}
             </main>
 
-            {/* Bottom Navigation */}
+            {/* Bottom Navigation Bar */}
             <BottomNav activeTab={activeTab} onChangeTab={setActiveTab} />
           </div>
         )}
       </div>
 
-      {/* Laptop Detail Screen (poster tap) */}
+      {/* Laptop Detail Screen (Movie Detail Screen Dribbble) */}
       {detailLaptop && (
         <LaptopDetailScreen
           laptop={detailLaptop}
@@ -147,7 +162,7 @@ export function App() {
         />
       )}
 
-      {/* New Booking Wizard Modal */}
+      {/* New Booking Wizard Modal (Station Seat Grid Screen Dribbble) */}
       {isNewBookingOpen && (
         <NewBookingWizard
           initialLaptop={bookingInitialLaptop}

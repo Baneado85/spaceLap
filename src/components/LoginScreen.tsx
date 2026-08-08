@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Laptop, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Laptop, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -27,117 +27,90 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="relative min-h-full w-full bg-[#031944] flex flex-col justify-between p-6 text-white overflow-hidden">
-      {/* Background Subtle Tech Grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(#0f4c81_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
+    <div className="relative min-h-full w-full bg-[#090A0F] flex flex-col justify-between p-6 text-white overflow-hidden select-none">
+      {/* Background Cyber Glow */}
+      <span className="blob w-64 h-64 bg-[#00F0FF]/15 -top-20 -left-20" />
+      <span className="blob w-64 h-64 bg-purple-600/15 -bottom-20 -right-20" />
 
-      {/* Top PUCP branding header */}
+      {/* Top PUCP Branding */}
       <div className="relative z-10 flex flex-col items-center pt-8 pb-4">
-        {/* Laptop icon container matching Figma design */}
-        <div className="relative w-28 h-20 bg-slate-900/80 border-2 border-white/20 rounded-lg shadow-xl flex flex-col items-center justify-center p-2 mb-3">
-          {/* Laptop Screen Content */}
-          <div className="w-full h-full bg-[#02102b] rounded flex flex-col items-center justify-center border border-white/10 p-1">
-            <div className="flex items-center space-x-1 mb-0.5">
-              <ShieldCheck className="w-4 h-4 text-pucp-accent" />
-              <span className="text-[10px] font-bold tracking-wider text-white">PUCP</span>
-            </div>
-            <div className="w-8 h-0.5 bg-pucp-accent/60 rounded" />
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#00F0FF] to-blue-600 p-0.5 shadow-[0_0_35px_rgba(0,240,255,0.4)] mb-4 flex items-center justify-center">
+          <div className="w-full h-full rounded-[22px] bg-slate-950 flex items-center justify-center">
+            <Laptop className="w-8 h-8 text-[#00F0FF]" />
           </div>
-          {/* Laptop Base */}
-          <div className="absolute -bottom-2 w-32 h-2 bg-slate-700 rounded-b-md shadow-md" />
         </div>
 
-        {/* App Title */}
-        <h1 className="text-3xl font-extrabold tracking-tight text-white font-heading mt-2">
-          Book It
+        <h1 className="text-3xl font-black tracking-wider text-white font-heading">
+          SpaceLap
         </h1>
-        <p className="text-xs text-blue-200/70 font-medium">
-          Sistema de Reserva de Espacios SpaceLap
+        <p className="text-xs text-slate-400 font-medium mt-1">
+          Sistema de Reserva de Laptops PUCP
         </p>
       </div>
 
       {/* Form Container */}
-      <form onSubmit={handleSubmit} className="relative z-10 w-full max-w-sm mx-auto space-y-4 my-auto">
+      <form onSubmit={handleSubmit} className="relative z-10 w-full max-w-sm mx-auto space-y-4 my-auto bg-slate-900/80 p-6 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-xl">
         {error && (
-          <div className="p-3 bg-red-500/20 border border-red-500/40 text-red-200 text-xs rounded-xl text-center">
+          <div className="p-3 bg-red-500/20 border border-red-500/40 text-red-200 text-xs rounded-xl text-center font-semibold">
             {error}
           </div>
         )}
 
-        {/* Student Code Input */}
         <div>
+          <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">CÓDIGO ALUMNO PUCP</label>
           <input
             type="text"
             value={studentCode}
             onChange={(e) => setStudentCode(e.target.value)}
-            placeholder="Código PUCP (ej. 20211038)"
-            className="w-full px-4 py-3 bg-white text-slate-900 font-medium rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-pucp-accent focus:border-transparent text-sm placeholder-slate-400 shadow-sm transition-all"
+            placeholder="Ej. 20211038"
+            className="w-full px-4 py-3 bg-slate-950 text-white font-semibold rounded-xl border border-white/15 focus:outline-none focus:border-[#00F0FF] text-sm placeholder-slate-500 transition-all"
           />
         </div>
 
-        {/* Password Input */}
         <div className="relative">
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            className="w-full px-4 py-3 bg-white text-slate-900 font-medium rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-pucp-accent focus:border-transparent text-sm placeholder-slate-400 shadow-sm transition-all pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors p-1"
-          >
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-          </button>
+          <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">CONTRASEÑA</label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-slate-950 text-white font-semibold rounded-xl border border-white/15 focus:outline-none focus:border-[#00F0FF] text-sm placeholder-slate-500 transition-all pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
-        <p className="text-[10px] text-blue-200/60 font-light italic">
-          * Campo obligatorio
-        </p>
-
-        {/* Remember me option */}
         <div className="flex items-center space-x-2 pt-1">
           <input
             type="checkbox"
             id="remember"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="w-4 h-4 rounded border-slate-300 text-pucp-accent focus:ring-pucp-accent accent-[#F5BE15] cursor-pointer"
+            className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-[#00F0FF] focus:ring-[#00F0FF] accent-[#00F0FF] cursor-pointer"
           />
-          <label htmlFor="remember" className="text-xs text-blue-100 font-normal cursor-pointer select-none">
-            Recordar inicio de sesión
+          <label htmlFor="remember" className="text-xs text-slate-300 font-medium cursor-pointer">
+            Recordar en este dispositivo
           </label>
         </div>
 
-        {/* Primary Login Button */}
         <button
           type="submit"
-          className="w-full py-3.5 px-6 bg-[#F5BE15] hover:bg-[#e0ac10] active:scale-[0.99] text-slate-950 font-bold rounded-xl shadow-lg shadow-yellow-500/20 text-sm transition-all duration-150 mt-4 flex items-center justify-center space-x-2"
+          className="w-full py-4 px-6 bg-[#00F0FF] hover:bg-[#33f3ff] text-black font-black uppercase text-xs tracking-wider rounded-2xl shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all active:scale-[0.98] mt-2"
         >
-          <span>Iniciar sesión</span>
+          Iniciar sesión
         </button>
-
-        {/* Forgot Password link */}
-        <div className="text-center pt-2">
-          <a
-            href="#forgot"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('Contacta al Administrador de TI PUCP o ingresa al portal del estudiante.');
-            }}
-            className="text-xs text-blue-200 hover:text-white underline decoration-blue-300/40 underline-offset-4 transition-colors"
-          >
-            ¿Olvidaste tu contraseña?
-          </a>
-        </div>
       </form>
 
-      {/* Footer Info */}
-      <div className="relative z-10 text-center pb-4 pt-2">
-        <p className="text-[11px] text-blue-300/50 font-medium">
-          PUCP &copy; 2026 SpaceLap - Grupo 6
+      <div className="relative z-10 text-center pb-2 pt-2">
+        <p className="text-[11px] text-slate-500 font-medium">
+          PUCP &copy; 2026 SpaceLap · Sistema de Reserva
         </p>
       </div>
     </div>

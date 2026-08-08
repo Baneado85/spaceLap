@@ -1,24 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-dark: #090A0F;
+    --card-dark: #12141C;
+    --neon-cyan: #00F0FF;
+    --neon-amber: #FFB800;
+  }
+  
   body {
-    font-family: 'Inter', sans-serif;
-    background-color: #0b1329;
-    color: #1e293b;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #050609;
+    color: #f1f5f9;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   }
 }
 
 /* Custom phone frame and scrollbars */
 .phone-frame {
   max-width: 440px;
-  height: 880px;
+  height: 890px;
   border-radius: 48px;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(15, 76, 129, 0.3);
-  border: 12px solid #1e293b;
+  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.9), 0 0 50px rgba(0, 240, 255, 0.15);
+  border: 10px solid #1c1f2b;
   overflow: hidden;
   position: relative;
+  background-color: #090a0f;
 }
 
 @media (max-width: 640px) {
@@ -31,42 +46,70 @@
   }
 }
 
-/* Dynamic island mock */
+/* Dynamic island mockup */
 .dynamic-island {
   width: 120px;
-  height: 30px;
+  height: 28px;
   background-color: #000;
   border-radius: 20px;
   position: absolute;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 50;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Celeste vidrio glassmorphism helpers */
-.glass-panel {
-  background: linear-gradient(135deg, rgba(111, 211, 255, 0.22) 0%, rgba(111, 211, 255, 0.06) 55%, rgba(2, 25, 68, 0.06) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
+/* Ultra Dark Glassmorphism */
 .glass-panel-dark {
-  background: linear-gradient(135deg, rgba(111, 211, 255, 0.18) 0%, rgba(0, 43, 102, 0.55) 60%, rgba(3, 25, 68, 0.75) 100%);
+  background: rgba(18, 20, 30, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.glass-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-active {
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.15) 0%, rgba(0, 43, 102, 0.4) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 10px 30px -5px rgba(0, 240, 255, 0.2);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(0, 240, 255, 0.4);
+}
+
+.glow-amber {
+  box-shadow: 0 0 25px -5px rgba(255, 184, 0, 0.4);
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #ffffff 0%, #00F0FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FFF5C0 0%, #FFB800 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(28px);
+  filter: blur(36px);
   pointer-events: none;
 }
 
@@ -80,16 +123,28 @@
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(0, 240, 255, 0.4);
 }
+
+/* Card Stack snap vertical container */
+.vertical-stack-container {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.vertical-stack-card {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+

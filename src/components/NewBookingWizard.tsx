@@ -1,13 +1,12 @@
-import React, { useMemo, useState } from 'react';
-import { availableLaptops } from '../data/mockData';
-import { Laptop, BookingRequest, TimeSlot, CampusZone } from '../types';
-import { X, Check, ArrowRight, ArrowLeft, Sparkles, Cpu, MemoryStick, MonitorSmartphone, Hash, MapPin } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import React, { useState } from 'react';
+import { availableLaptops, campusZonesList } from '../data/mockData';
+import { Laptop, BookingRequest, TimeSlot, CampusZone, LabSeat } from '../types';
+import { X, Check, ArrowRight, ArrowLeft, Sparkles, MapPin, Laptop as LaptopIcon, Calendar, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { LaptopArt } from './LaptopArt';
+import { LabSeatGrid } from './LabSeatGrid';
 import { CampusMap } from './CampusMap';
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4;
 
 interface NewBookingWizardProps {
   initialLaptop?: Laptop | null;
@@ -16,50 +15,21 @@ interface NewBookingWizardProps {
 }
 
 export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ initialLaptop, onClose, onAddRequest }) => {
-  const brands = useMemo(
-    () => Array.from(new Set(availableLaptops.map((l) => l.brand))),
-    []
-  );
-
-  const minStep: Step = initialLaptop ? 2 : 1;
-  const totalSteps = initialLaptop ? 4 : 5;
-
-  const [step, setStep] = useState<Step>(minStep);
-  const [selectedBrand, setSelectedBrand] = useState<string>(initialLaptop?.brand ?? brands[0]);
-  const [selectedLaptop, setSelectedLaptop] = useState<Laptop | null>(null);
+  const [step, setStep] = useState<Step>(initialLaptop ? 2 : 1);
+  const [selectedLaptop, setSelectedLaptop] = useState<Laptop | null>(initialLaptop || availableLaptops[0]);
+  const [selectedZone, setSelectedZone] = useState<CampusZone>(campusZonesList[0]);
+  const [selectedSeat, setSelectedSeat] = useState<LabSeat | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [selectedZone, setSelectedZone] = useState<CampusZone | null>(null);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
   const [createdRequest, setCreatedRequest] = useState<BookingRequest | null>(null);
 
-  const filteredLaptops = initialLaptop
-    ? [initialLaptop]
-    : availableLaptops.filter((l) => l.brand === selectedBrand && l.available);
+  const handleSeatAndSlotChosen = (seat: LabSeat, slot: TimeSlot) => {
+    setSelectedSeat(seat);
+    setSelectedSlot(slot);
 
-  const displayStep = initialLaptop ? step - 1 : step;
-
-  const stepTitle = (s: Step) => {
-    if (s === 1) return 'Elige una marca';
-    if (s === 2) return 'Laptops disponibles';
-    if (s === 3) return 'Elige tu ubicación en el campus';
-    if (s === 4) return 'Horario de reserva';
-    return '¡Reserva confirmada!';
-  };
-
-  const handleConfirm = () => {
-    if (!selectedLaptop || !selectedZone || !startTime || !endTime) return;
-
-    const [sh, sm] = startTime.split(':').map(Number);
-    const [eh, em] = endTime.split(':').map(Number);
-    const durationMinutes = (eh * 60 + em) - (sh * 60 + sm);
+    if (!selectedLaptop) return;
 
     const randomId = `REQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const today = new Date().toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    const todayStr = 'HOY, 12 JUN';
 
     const newReq: BookingRequest = {
       id: randomId,
@@ -69,335 +39,180 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ initialLapto
       laptopCode: selectedLaptop.code,
       laptopModel: selectedLaptop.model,
       zoneName: selectedZone.name,
-      date: today,
-      startTime,
-      endTime,
-      durationMinutes,
+      seatLabel: `Mesa ${seat.label} (${seat.row === 1 ? 'Fila Frontal' : 'Fila Central'})`,
+      date: todayStr,
+      startTime: slot.start,
+      endTime: slot.end,
+      durationMinutes: 180,
       status: 'active',
       qrCodeValue: `SPACELAP-PUCP-20211038-${randomId}`,
-      createdAt: new Date().toLocaleString(),
+      createdAt: new Date().toLocaleString('es-PE'),
     };
 
     setCreatedRequest(newReq);
     onAddRequest(newReq);
-    setStep(5);
+    setStep(4);
 
     try {
-      confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
+      confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
     } catch {
       // ignore
     }
   };
 
-  const handleSlotSelect = (slot: TimeSlot, laptop: Laptop) => {
-    setSelectedLaptop(laptop);
-    setSelectedSlot(slot);
-    setStartTime(slot.start);
-    setEndTime(slot.end);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto max-h-[720px] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 text-white">
+      <div className="bg-[#090A0F] w-full max-w-md h-[92vh] sm:h-auto max-h-[820px] rounded-t-[36px] sm:rounded-[36px] shadow-2xl flex flex-col overflow-hidden border border-white/15">
         {/* Header */}
-        <div className="p-4 px-6 bg-glass-sky glass-panel-dark text-white flex items-center justify-between">
+        <div className="p-4 px-6 bg-slate-900/90 border-b border-white/10 flex items-center justify-between">
           <div>
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-pucp-skyLight">
-              Paso {displayStep} de {totalSteps}
+            <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#00F0FF]">
+              PASO {step} DE 4
             </span>
-            <h3 className="text-base font-bold">{stepTitle(step)}</h3>
+            <h3 className="text-base font-extrabold text-white">
+              {step === 1 && 'Selecciona Laptop'}
+              {step === 2 && 'Ubicación / Pabellón'}
+              {step === 3 && 'Puesto & Horario (Grid)'}
+              {step === 4 && '¡Reserva Confirmada!'}
+            </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors"
+            className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-gradient-to-b from-pucp-skyLight/30 to-white">
-          {/* STEP 1: Select brand */}
+        {/* Content Body */}
+        <div className="flex-1 overflow-y-auto bg-[#090A0F] flex flex-col">
+          {/* STEP 1: Select Laptop */}
           {step === 1 && (
-            <div className="space-y-3">
-              <p className="text-xs text-slate-500 font-medium">Elige la marca de laptop que prefieres:</p>
-              <div className="grid grid-cols-2 gap-3">
-                {brands.map((brand) => (
-                  <div
-                    key={brand}
-                    onClick={() => setSelectedBrand(brand)}
-                    className={`relative p-3 rounded-2xl border-2 cursor-pointer transition-all ${
-                      selectedBrand === brand
-                        ? 'border-pucp-navy shadow-md'
-                        : 'border-slate-200 hover:border-pucp-sky/60 bg-white'
-                    }`}
-                  >
-                    <LaptopArt brand={brand} size="md" />
-                    <div className="flex items-center justify-between mt-2">
-                      <h4 className="text-xs font-bold text-slate-900">{brand}</h4>
-                      {selectedBrand === brand && (
-                        <div className="w-5 h-5 bg-pucp-navy text-white rounded-full flex items-center justify-center">
-                          <Check className="w-3 h-3" />
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-400 font-medium">
+                Elige el modelo de laptop que deseas reservar para tu sesión:
+              </p>
+
+              <div className="space-y-3">
+                {availableLaptops.map((laptop) => {
+                  const isSelected = selectedLaptop?.id === laptop.id;
+                  return (
+                    <div
+                      key={laptop.id}
+                      onClick={() => setSelectedLaptop(laptop)}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-[#00F0FF]/15 border-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.2)]'
+                          : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <LaptopIcon className={`w-8 h-8 ${isSelected ? 'text-[#00F0FF]' : 'text-slate-500'}`} />
+                        <div>
+                          <p className="text-xs font-bold text-[#00F0FF]">{laptop.brand}</p>
+                          <h4 className="text-sm font-extrabold text-white">{laptop.name}</h4>
+                          <p className="text-[11px] text-slate-400">{laptop.processor} · {laptop.ram}</p>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-6 h-6 bg-[#00F0FF] text-black rounded-full flex items-center justify-center font-bold">
+                          <Check className="w-4 h-4" />
                         </div>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-500">
-                      {availableLaptops.filter((l) => l.brand === brand && l.available).length} disponibles
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
+              <button
+                onClick={() => setStep(2)}
+                className="w-full py-4 bg-[#00F0FF] hover:bg-[#33f3ff] text-black font-extrabold text-xs rounded-2xl shadow-[0_0_25px_rgba(0,240,255,0.4)] tracking-wider uppercase mt-4"
+              >
+                Continuar a Selección de Pabellón
+              </button>
             </div>
           )}
 
-          {/* STEP 2: Available laptops with slots */}
+          {/* STEP 2: Select Zone / Lab */}
           {step === 2 && (
-            <div className="space-y-3">
-              <p className="text-[11px] text-slate-500">
-                Cada laptop cuenta con una disponibilidad inicial de 8 horas durante el transcurso del día.
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-400 font-medium">
+                Selecciona el laboratorio o pabellón del campus PUCP:
               </p>
-              {filteredLaptops.length === 0 ? (
-                <p className="text-center text-slate-500 text-xs py-8">
-                  No hay laptops {selectedBrand} disponibles hoy.
-                </p>
-              ) : (
-                filteredLaptops.map((laptop) => (
-                  <LaptopSlotCard
-                    key={laptop.id}
-                    laptop={laptop}
-                    selectedLaptop={selectedLaptop}
-                    selectedSlot={selectedSlot}
-                    defaultExpanded={!!initialLaptop}
-                    onSelectSlot={(slot) => handleSlotSelect(slot, laptop)}
-                  />
-                ))
-              )}
+
+              <CampusMap
+                selectedZoneId={selectedZone.id}
+                onSelect={(z) => setSelectedZone(z)}
+              />
+
+              <button
+                onClick={() => setStep(3)}
+                className="w-full py-4 bg-[#00F0FF] hover:bg-[#33f3ff] text-black font-extrabold text-xs rounded-2xl shadow-[0_0_25px_rgba(0,240,255,0.4)] tracking-wider uppercase mt-4"
+              >
+                Continuar a Selección de Puesto
+              </button>
             </div>
           )}
 
-          {/* STEP 3: Campus zone map */}
-          {step === 3 && (
-            <div className="space-y-3">
-              <p className="text-[11px] text-slate-500">
-                Selecciona el pabellón o zona del campus PUCP donde usarás la laptop.
-              </p>
-              <CampusMap selectedZoneId={selectedZone?.id ?? null} onSelect={setSelectedZone} />
-            </div>
+          {/* STEP 3: Cinema-style Station Grid (Screen 3 Dribbble) */}
+          {step === 3 && selectedLaptop && (
+            <LabSeatGrid
+              laptop={selectedLaptop}
+              onSelectSeatAndSlot={handleSeatAndSlotChosen}
+            />
           )}
 
-          {/* STEP 4: Confirm time */}
-          {step === 4 && selectedLaptop && (
-            <div className="space-y-5">
-              <div className="relative rounded-2xl overflow-hidden">
-                <LaptopArt brand={selectedLaptop.brand} size="lg" />
-                <div className="mt-3 text-center">
-                  <h4 className="text-sm font-extrabold text-slate-900">{selectedLaptop.name}</h4>
-                  <p className="text-[11px] text-slate-500">{selectedLaptop.brand}</p>
-                </div>
+          {/* STEP 4: Success Ticket Screen */}
+          {step === 4 && createdRequest && (
+            <div className="p-6 text-center space-y-6 flex-1 flex flex-col justify-center items-center">
+              <div className="w-16 h-16 rounded-full bg-[#00F0FF]/20 text-[#00F0FF] border border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.5)]">
+                <CheckCircle2 className="w-10 h-10" />
               </div>
 
-              <SpecsPanel laptop={selectedLaptop} />
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-[#00F0FF] font-extrabold">
+                  PASE DE RESERVA DIGITAL GENERADO
+                </span>
+                <h2 className="text-2xl font-black text-white mt-1">¡Reserva Confirmada!</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Muestra tu código QR al ingresar al laboratorio.
+                </p>
+              </div>
 
-              {selectedZone && (
-                <div className="glass-panel rounded-xl p-3 flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-pucp-skyDeep flex-shrink-0" />
+              {/* Ticket Card */}
+              <div className="w-full bg-slate-900 border border-white/15 rounded-3xl p-5 text-left space-y-3 shadow-2xl relative">
+                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                  <span className="text-[10px] font-bold text-slate-400">PASE SPACELAP</span>
+                  <span className="text-xs font-mono font-bold text-[#FFB800]">{createdRequest.id}</span>
+                </div>
+
+                <div>
+                  <p className="text-[10px] uppercase text-slate-400 font-bold">EQUIPO</p>
+                  <p className="text-base font-extrabold text-white">{createdRequest.laptopName}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[9px] uppercase tracking-wide text-slate-400 font-semibold">Ubicación</p>
-                    <p className="text-xs font-bold text-slate-800">{selectedZone.name}</p>
+                    <p className="text-[10px] text-slate-400 font-bold">PUESTO</p>
+                    <p className="font-extrabold text-[#00F0FF]">{createdRequest.seatLabel}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold">HORARIO</p>
+                    <p className="font-extrabold text-white">{createdRequest.startTime} – {createdRequest.endTime}</p>
                   </div>
                 </div>
-              )}
-
-              <p className="text-[11px] text-slate-500 text-center">
-                Selecciona tu horario de reserva según los horarios disponibles.
-              </p>
-              <div className="text-[11px] text-slate-500 text-right mb-1">Formato de 24 horas</div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-slate-700">Ingrese la hora de inicio:</label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-28 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-pucp-navy focus:outline-none"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-slate-700">Ingrese la hora de fin:</label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="w-28 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-pucp-navy focus:outline-none"
-                  />
-                </div>
               </div>
+
+              <button
+                onClick={onClose}
+                className="w-full py-4 bg-[#00F0FF] text-black font-extrabold text-xs rounded-2xl shadow-[0_0_25px_rgba(0,240,255,0.4)] tracking-wider uppercase"
+              >
+                VOLVER AL INICIO
+              </button>
             </div>
-          )}
-
-          {/* STEP 5: Success */}
-          {step === 5 && createdRequest && selectedLaptop && (
-            <div className="flex flex-col items-center justify-center text-center space-y-4 py-2">
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Solicitud registrada con éxito</h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Presenta este código QR al recoger la laptop
-                </p>
-              </div>
-              <div className="p-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
-                <QRCodeSVG value={createdRequest.qrCodeValue} size={150} />
-                <p className="text-[10px] font-mono text-slate-500 font-bold mt-2">{createdRequest.id}</p>
-              </div>
-              <div className="w-full text-left p-3 glass-panel rounded-xl text-[11px] text-slate-700 space-y-1">
-                <p><strong className="text-pucp-navy">Laptop:</strong> {createdRequest.laptopName}</p>
-                <p><strong className="text-pucp-navy">Ubicación:</strong> {createdRequest.zoneName}</p>
-                <p><strong className="text-pucp-navy">Horario:</strong> {createdRequest.startTime} – {createdRequest.endTime}</p>
-                <p className="text-red-600 text-[10px]">
-                  Recuerda: De no recoger el dispositivo después de 10 minutos de iniciado la reserva esta se cancelará automáticamente.
-                </p>
-              </div>
-              <SpecsPanel laptop={selectedLaptop} />
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          {step > minStep && step < 5 ? (
-            <button
-              onClick={() => setStep((s) => (s - 1) as Step)}
-              className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl flex items-center space-x-1 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>← Volver</span>
-            </button>
-          ) : (
-            <div />
-          )}
-
-          {step < 4 && (
-            <button
-              onClick={() => setStep((s) => (s + 1) as Step)}
-              disabled={(step === 2 && !selectedSlot) || (step === 3 && !selectedZone)}
-              className="px-5 py-2.5 bg-pucp-navy hover:bg-pucp-dark disabled:bg-slate-300 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
-            >
-              <span>Siguiente</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          )}
-
-          {step === 4 && (
-            <button
-              onClick={handleConfirm}
-              disabled={!startTime || !endTime}
-              className="px-5 py-2.5 bg-pucp-navy hover:bg-pucp-dark disabled:bg-slate-300 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow transition-colors ml-auto"
-            >
-              <span>Aceptar</span>
-            </button>
-          )}
-
-          {step === 5 && (
-            <button
-              onClick={onClose}
-              className="w-full py-3 bg-pucp-navy text-white text-xs font-bold rounded-xl shadow transition-colors"
-            >
-              Cerrar y volver a inicio
-            </button>
           )}
         </div>
       </div>
-    </div>
-  );
-};
-
-const SpecsPanel: React.FC<{ laptop: Laptop }> = ({ laptop }) => (
-  <div className="glass-panel rounded-xl p-3 grid grid-cols-2 gap-2.5 text-[11px] text-slate-700">
-    <SpecItem icon={<Cpu className="w-3.5 h-3.5 text-pucp-skyDeep" />} label="Procesador" value={laptop.processor} />
-    <SpecItem icon={<MemoryStick className="w-3.5 h-3.5 text-pucp-skyDeep" />} label="Memoria RAM" value={laptop.ram} />
-    <SpecItem icon={<MonitorSmartphone className="w-3.5 h-3.5 text-pucp-skyDeep" />} label="Sistema" value={laptop.os} />
-    <SpecItem icon={<Hash className="w-3.5 h-3.5 text-pucp-skyDeep" />} label="Nº de equipo" value={laptop.code} mono />
-  </div>
-);
-
-const SpecItem: React.FC<{ icon: React.ReactNode; label: string; value: string; mono?: boolean }> = ({
-  icon, label, value, mono,
-}) => (
-  <div className="flex items-start space-x-2">
-    <div className="mt-0.5">{icon}</div>
-    <div>
-      <p className="text-[9px] uppercase tracking-wide text-slate-400 font-semibold">{label}</p>
-      <p className={`text-xs font-bold text-slate-800 ${mono ? 'font-mono' : ''}`}>{value}</p>
-    </div>
-  </div>
-);
-
-interface LaptopSlotCardProps {
-  laptop: Laptop;
-  selectedLaptop: Laptop | null;
-  selectedSlot: TimeSlot | null;
-  defaultExpanded?: boolean;
-  onSelectSlot: (slot: TimeSlot) => void;
-}
-
-const LaptopSlotCard: React.FC<LaptopSlotCardProps> = ({
-  laptop, selectedLaptop, selectedSlot, defaultExpanded, onSelectSlot,
-}) => {
-  const [expanded, setExpanded] = useState(!!defaultExpanded);
-  const totalMins = laptop.availableSlots.reduce((acc, s) => {
-    const [sh, sm] = s.start.split(':').map(Number);
-    const [eh, em] = s.end.split(':').map(Number);
-    return acc + (eh * 60 + em) - (sh * 60 + sm);
-  }, 0);
-  const h = Math.floor(totalMins / 60);
-  const m = totalMins % 60;
-  const label = m > 0 ? `${h}h ${m}min` : `${h}h`;
-
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <button
-        onClick={() => setExpanded((e) => !e)}
-        className="w-full flex items-center space-x-3 p-3 text-left"
-      >
-        <LaptopArt brand={laptop.brand} size="sm" className="flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-slate-900 truncate">{laptop.name}</p>
-          <p className="text-[11px] text-slate-500">Disponibilidad: {label}</p>
-          <p className="text-[10px] text-slate-400">{laptop.processor} · {laptop.ram} · {laptop.os}</p>
-        </div>
-        <span className="text-slate-500 text-sm flex-shrink-0">{expanded ? '∧' : '∨'}</span>
-      </button>
-      {expanded && (
-        <div className="px-4 pb-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {laptop.availableSlots.map((slot, i) => {
-              const isSelected =
-                selectedLaptop?.id === laptop.id &&
-                selectedSlot?.start === slot.start &&
-                selectedSlot?.end === slot.end;
-              return (
-                <button
-                  key={i}
-                  onClick={() => onSelectSlot(slot)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors ${
-                    isSelected
-                      ? 'bg-pucp-navy text-white border-pucp-navy'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  {slot.start} – {slot.end} hrs
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-[10px] text-slate-400 flex items-center space-x-1">
-            <Hash className="w-3 h-3" />
-            <span>Nº de equipo: <span className="font-mono">{laptop.code}</span></span>
-          </p>
-        </div>
-      )}
     </div>
   );
 };

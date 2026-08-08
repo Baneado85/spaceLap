@@ -2,6 +2,8 @@ export type TabType = 'requests' | 'home' | 'profile';
 
 export type BookingStatus = 'active' | 'completed' | 'cancelled';
 
+export type LaptopCategory = 'all' | 'popular' | 'macbook' | 'gaming' | 'ultrabook';
+
 export interface User {
   studentCode: string;
   fullName: string;
@@ -16,6 +18,15 @@ export interface User {
 export interface TimeSlot {
   start: string;
   end: string;
+  label?: string;
+}
+
+export interface LabSeat {
+  id: string;
+  label: string; // e.g. "Desk 01", "Puesto 12"
+  row: number;
+  col: number;
+  status: 'available' | 'occupied' | 'selected';
 }
 
 export interface Laptop {
@@ -27,11 +38,19 @@ export interface Laptop {
   os: string;
   ram: string;
   processor: string;
+  gpu?: string;
+  screenSpec?: string;
+  batteryLevel?: string;
+  rating?: string;
+  category?: LaptopCategory;
+  labRoom?: string;
+  imageUrl?: string;
   available: boolean;
   availableSlots: TimeSlot[];
   tagline: string;
   benefits: string[];
   featured?: boolean;
+  seats?: LabSeat[];
 }
 
 export interface CampusZone {
@@ -41,6 +60,7 @@ export interface CampusZone {
   description: string;
   x: number;
   y: number;
+  labs?: string[];
 }
 
 export interface BookingRequest {
@@ -51,6 +71,7 @@ export interface BookingRequest {
   laptopCode: string;
   laptopModel: string;
   zoneName: string;
+  seatLabel?: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -68,3 +89,4 @@ export interface NotificationItem {
   read: boolean;
   type: 'info' | 'success' | 'warning';
 }
+
