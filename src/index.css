@@ -1,3 +1,5 @@
+.unique-test-marker-999{color:red}
+/* UNIQUE_TEST_MARKER_12345 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -46,6 +48,28 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
+}
+
+/* Celeste vidrio glassmorphism helpers */
+.glass-panel {
+  background: linear-gradient(135deg, rgba(111, 211, 255, 0.22) 0%, rgba(111, 211, 255, 0.06) 55%, rgba(2, 25, 68, 0.06) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.glass-panel-dark {
+  background: linear-gradient(135deg, rgba(111, 211, 255, 0.18) 0%, rgba(0, 43, 102, 0.55) 60%, rgba(3, 25, 68, 0.75) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  pointer-events: none;
 }
 
 /* Custom scrollbars */

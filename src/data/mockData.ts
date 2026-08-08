@@ -13,6 +13,7 @@ export const currentUser: User = {
 export const availableLaptops: Laptop[] = [
   {
     id: 'laptop-1',
+    name: 'Dell Inspiron 15',
     code: 'C10410009',
     brand: 'Dell',
     model: 'Dell Inspiron 3520, 15.6\"',
@@ -24,6 +25,7 @@ export const availableLaptops: Laptop[] = [
   },
   {
     id: 'laptop-2',
+    name: 'Lenovo ThinkPad E14',
     code: 'C17440040',
     brand: 'Lenovo',
     model: 'Lenovo ThinkPad E14',
@@ -38,6 +40,7 @@ export const availableLaptops: Laptop[] = [
   },
   {
     id: 'laptop-3',
+    name: 'Lenovo ThinkPad E14',
     code: 'C10210026',
     brand: 'Lenovo',
     model: 'Lenovo ThinkPad E14',
@@ -53,6 +56,7 @@ export const availableLaptops: Laptop[] = [
   },
   {
     id: 'laptop-4',
+    name: 'Lenovo ThinkPad E14',
     code: 'C50410145',
     brand: 'Lenovo',
     model: 'Lenovo ThinkPad E14',
@@ -66,6 +70,7 @@ export const availableLaptops: Laptop[] = [
   },
   {
     id: 'laptop-5',
+    name: 'Dell Inspiron 15',
     code: 'C34641006',
     brand: 'Dell',
     model: 'Dell Inspiron 3520, 15.6\"',
@@ -78,12 +83,74 @@ export const availableLaptops: Laptop[] = [
       { start: '16:00', end: '18:00' },
       ],
   },
+  {
+    id: 'laptop-6',
+    name: 'MacBook Air M2',
+    code: 'C90210077',
+    brand: 'Apple',
+    model: 'MacBook Air 13" M2',
+    os: 'macOS Sonoma',
+    ram: '8GB',
+    processor: 'Apple M2',
+    available: true,
+    availableSlots: [
+      { start: '09:00', end: '11:00' },
+      { start: '14:00', end: '16:30' },
+      ],
+  },
+  {
+    id: 'laptop-7',
+    name: 'MacBook Pro 14',
+    code: 'C90310099',
+    brand: 'Apple',
+    model: 'MacBook Pro 14" M3',
+    os: 'macOS Sonoma',
+    ram: '16GB',
+    processor: 'Apple M3',
+    available: true,
+    availableSlots: [
+      { start: '08:30', end: '10:00' },
+      { start: '12:30', end: '14:30' },
+      ],
+  },
+  {
+    id: 'laptop-8',
+    name: 'HP Pavilion x360',
+    code: 'C72110058',
+    brand: 'HP',
+    model: 'HP Pavilion x360 14"',
+    os: 'Windows 11',
+    ram: '8GB',
+    processor: 'Core i5',
+    available: true,
+    availableSlots: [
+      { start: '10:30', end: '12:30' },
+      { start: '15:30', end: '17:00' },
+      ],
+  },
+  {
+    id: 'laptop-9',
+    name: 'ASUS ZenBook 14 OLED',
+    code: 'C65510081',
+    brand: 'Asus',
+    model: 'ASUS ZenBook 14 OLED',
+    os: 'Windows 11',
+    ram: '16GB',
+    processor: 'Core i7',
+    available: true,
+    availableSlots: [
+      { start: '09:30', end: '11:30' },
+      { start: '13:30', end: '15:00' },
+      ],
+  },
   ];
 
 export const initialRequests: BookingRequest[] = [
   {
     id: 'req-1',
     laptopId: 'laptop-1',
+    laptopName: 'Dell Inspiron 15',
+    laptopBrand: 'Dell',
     laptopCode: 'C10410009',
     laptopModel: 'Dell Inspiron 3520, 15.6\"',
     date: '2026-08-01',
@@ -97,6 +164,8 @@ export const initialRequests: BookingRequest[] = [
   {
     id: 'req-2',
     laptopId: 'laptop-3',
+    laptopName: 'Lenovo ThinkPad E14',
+    laptopBrand: 'Lenovo',
     laptopCode: 'C10210026',
     laptopModel: 'Lenovo ThinkPad E14',
     date: '2026-07-31',

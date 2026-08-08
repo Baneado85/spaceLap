@@ -20,6 +20,7 @@ export interface TimeSlot {
 
 export interface Laptop {
   id: string;
+  name: string;
   code: string;
   brand: string;
   model: string;
@@ -33,6 +34,8 @@ export interface Laptop {
 export interface BookingRequest {
   id: string;
   laptopId: string;
+  laptopName: string;
+  laptopBrand: string;
   laptopCode: string;
   laptopModel: string;
   date: string;

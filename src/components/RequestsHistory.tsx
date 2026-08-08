@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BookingRequest } from '../types';
-import { QrCode, CheckCircle2, Clock, XCircle, X } from 'lucide-react';
+import { QrCode, CheckCircle2, Clock, XCircle, X, Hash } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { LaptopArt } from './LaptopArt';
 
 interface RequestsHistoryProps {
   requests: BookingRequest[];
@@ -80,9 +81,12 @@ export const RequestsHistory: React.FC<RequestsHistoryProps> = ({ requests, onCa
               className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-[#002B66]">{req.laptopCode}</h3>
-                  <p className="text-[11px] text-slate-500 font-medium">{req.laptopModel}</p>
+                <div className="flex items-center space-x-3 min-w-0">
+                  <LaptopArt brand={req.laptopBrand} size="sm" className="flex-shrink-0" />
+                  <div className="min-w-0">
+                    <h3 className="text-xs font-bold text-[#002B66] truncate">{req.laptopName}</h3>
+                    <p className="text-[11px] text-slate-500 font-medium truncate">{req.laptopModel}</p>
+                  </div>
                 </div>
                 {getStatusBadge(req.status)}
               </div>
@@ -137,11 +141,15 @@ export const RequestsHistory: React.FC<RequestsHistoryProps> = ({ requests, onCa
               <QRCodeSVG value={selectedQRReq.qrCodeValue} size={160} />
             </div>
             <div className="text-xs text-slate-600 space-y-1">
-              <p className="font-bold text-[#002B66]">{selectedQRReq.laptopCode}</p>
+              <p className="font-bold text-[#002B66]">{selectedQRReq.laptopName}</p>
               <p className="text-[11px]">
                 {selectedQRReq.date} ({selectedQRReq.startTime} – {selectedQRReq.endTime})
               </p>
               <p className="text-[10px] font-mono text-slate-400 pt-1">{selectedQRReq.id}</p>
+            </div>
+            <div className="w-full glass-panel rounded-xl p-2.5 flex items-center justify-center space-x-2 text-[11px] text-slate-600">
+              <Hash className="w-3.5 h-3.5 text-pucp-skyDeep flex-shrink-0" />
+              <span>Nº de equipo (especificaciones): <span className="font-mono font-semibold">{selectedQRReq.laptopCode}</span></span>
             </div>
           </div>
         </div>

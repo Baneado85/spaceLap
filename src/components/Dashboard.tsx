@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BookingRequest, User } from '../types';
-import { Clock } from 'lucide-react';
+import { Clock, Hash } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { LaptopArt } from './LaptopArt';
 
 interface DashboardProps {
   activeRequest: BookingRequest | null;
@@ -47,41 +48,40 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="flex-1 p-5 space-y-5 bg-[#F3F4F6] overflow-y-auto">
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
-        <h2 className="text-sm font-bold text-slate-800 mb-3">Mis Solicitudes</h2>
+      <div className="relative overflow-hidden rounded-2xl glass-panel-dark p-5 text-white shadow-lg">
+        <span className="blob w-28 h-28 bg-pucp-sky/40 -top-10 -right-10" />
+        <span className="blob w-24 h-24 bg-pucp-skyDeep/30 -bottom-12 -left-8" />
+        <h2 className="relative text-sm font-bold mb-3">Mis Solicitudes</h2>
 
         {activeRequest ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] text-slate-500">Codigo de laptop</p>
-                <p className="text-sm font-bold text-slate-900">{activeRequest.laptopCode}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] text-slate-500">Fecha</p>
-                <p className="text-sm font-bold text-slate-900">{activeRequest.date}</p>
+          <div className="relative space-y-4">
+            <div className="flex items-center space-x-3">
+              <LaptopArt brand={activeRequest.laptopBrand} size="sm" className="flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[11px] text-pucp-skyLight">Laptop reservada</p>
+                <p className="text-sm font-bold text-white truncate">{activeRequest.laptopName}</p>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] text-slate-500">Hora de inicio</p>
-                <p className="text-sm font-bold text-slate-900">{activeRequest.startTime}</p>
+                <p className="text-[11px] text-pucp-skyLight">Fecha</p>
+                <p className="text-sm font-bold text-white">{activeRequest.date}</p>
               </div>
+              <div className="text-right">
+                <p className="text-[11px] text-pucp-skyLight">Horario</p>
+                <p className="text-sm font-bold text-white">{activeRequest.startTime} – {activeRequest.endTime}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
               <button
                 onClick={() => setShowQr(true)}
-                className="px-4 py-2 bg-[#042454] hover:bg-[#031944] text-white text-xs font-bold rounded-lg flex items-center space-x-1 transition-colors"
+                className="px-4 py-2 bg-pucp-sky hover:bg-pucp-skyDeep text-pucp-dark hover:text-white text-xs font-bold rounded-lg flex items-center space-x-1 transition-colors"
               >
                 <span>Ver QR</span>
                 <span>{'>>>'}</span>
               </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] text-slate-500">Hora de fin</p>
-                <p className="text-sm font-bold text-slate-900">{activeRequest.endTime}</p>
-              </div>
               <button
                 onClick={() => setShowCancelConfirm(true)}
                 className="px-4 py-2 bg-[#CC2121] hover:bg-[#a81b1b] text-white text-xs font-bold rounded-lg transition-colors"
@@ -91,7 +91,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
         ) : (
-          <p className="text-sm text-slate-500 text-center py-6 italic">
+          <p className="relative text-sm text-pucp-skyLight/90 text-center py-6 italic">
             ¡Aún no has realizado ninguna solicitud!
           </p>
         )}
@@ -109,7 +109,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         )}
         <p className="text-xs text-slate-700">
           Tiempo restante hoy:{' '}
-          <span className="font-bold text-[#042454]">{formatTimer(secondsRemaining)}</span>
+          <span className="font-bold text-pucp-navy">{formatTimer(secondsRemaining)}</span>
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         className={`w-full py-3.5 rounded-xl text-sm font-bold transition-colors ${
           activeRequest
             ? 'bg-[#8F8E94] text-white cursor-not-allowed'
-            : 'bg-[#042454] hover:bg-[#031944] text-white'
+            : 'bg-pucp-navy hover:bg-pucp-dark text-white shadow-md shadow-pucp-sky/20'
         }`}
       >
         + Nueva solicitud
@@ -161,16 +161,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
             >
               ✕
             </button>
-            <div className="flex items-center justify-between pt-4">
+            <div className="text-center pt-2">
+              <h4 className="text-sm font-bold text-slate-900">{activeRequest.laptopName}</h4>
+            </div>
+            <div className="flex items-center justify-between pt-1">
               <div>
-                <p className="text-xs font-bold text-[#042454]">INICIO</p>
+                <p className="text-xs font-bold text-pucp-navy">INICIO</p>
                 <p className="text-sm text-slate-800">{activeRequest.startTime}</p>
               </div>
               <p className="text-[11px] text-slate-500">
                 {durationLabel(activeRequest.startTime, activeRequest.endTime)}
               </p>
               <div className="text-right">
-                <p className="text-xs font-bold text-[#042454]">FIN</p>
+                <p className="text-xs font-bold text-pucp-navy">FIN</p>
                 <p className="text-sm text-slate-800">{activeRequest.endTime}</p>
               </div>
             </div>
@@ -182,6 +185,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <p className="text-sm font-bold text-slate-900">{user.studentCode}</p>
               </div>
               <QRCodeSVG value={activeRequest.qrCodeValue} size={100} />
+            </div>
+            <div className="glass-panel rounded-xl p-2.5 flex items-center space-x-2 text-[11px] text-slate-600">
+              <Hash className="w-3.5 h-3.5 text-pucp-skyDeep flex-shrink-0" />
+              <span>Nº de equipo (especificaciones): <span className="font-mono font-semibold">{activeRequest.laptopCode}</span></span>
             </div>
           </div>
         </div>
