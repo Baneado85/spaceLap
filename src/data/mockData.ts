@@ -1,0 +1,110 @@
+import { User, Laptop, BookingRequest } from '../types';
+
+export const currentUser: User = {
+  studentCode: '20211038',
+  fullName: 'NAVARRO COLLAO WALTER JUNIOR',
+  email: 'estudiante@pucp.edu.pe',
+  faculty: 'FACULTAD CIENCIAS E INGENIERIA',
+  major: 'INGENIERIA INFORMATICA',
+  dailyQuotaSeconds: 18000,
+  weeklyQuotaSeconds: 90000,
+};
+
+export const availableLaptops: Laptop[] = [
+  {
+    id: 'laptop-1',
+    code: 'C10410009',
+    brand: 'Dell',
+    model: 'Dell Inspiron 3520, 15.6\"',
+    os: 'Windows 10',
+    ram: '8GB',
+    processor: 'Core i5',
+    available: false,
+    availableSlots: [],
+  },
+  {
+    id: 'laptop-2',
+    code: 'C17440040',
+    brand: 'Lenovo',
+    model: 'Lenovo ThinkPad E14',
+    os: 'Windows 10',
+    ram: '16GB',
+    processor: 'Core i7',
+    available: true,
+    availableSlots: [
+      { start: '09:00', end: '10:30' },
+      { start: '13:00', end: '15:30' },
+      ],
+  },
+  {
+    id: 'laptop-3',
+    code: 'C10210026',
+    brand: 'Lenovo',
+    model: 'Lenovo ThinkPad E14',
+    os: 'Windows 10',
+    ram: '16GB',
+    processor: 'Core i7',
+    available: true,
+    availableSlots: [
+      { start: '08:00', end: '10:30' },
+      { start: '12:00', end: '13:00' },
+      { start: '15:00', end: '17:30' },
+      ],
+  },
+  {
+    id: 'laptop-4',
+    code: 'C50410145',
+    brand: 'Lenovo',
+    model: 'Lenovo ThinkPad E14',
+    os: 'Windows 11',
+    ram: '8GB',
+    processor: 'Core i5',
+    available: true,
+    availableSlots: [
+      { start: '10:00', end: '12:00' },
+      ],
+  },
+  {
+    id: 'laptop-5',
+    code: 'C34641006',
+    brand: 'Dell',
+    model: 'Dell Inspiron 3520, 15.6\"',
+    os: 'Windows 10',
+    ram: '8GB',
+    processor: 'Core i5',
+    available: true,
+    availableSlots: [
+      { start: '11:00', end: '13:00' },
+      { start: '16:00', end: '18:00' },
+      ],
+  },
+  ];
+
+export const initialRequests: BookingRequest[] = [
+  {
+    id: 'req-1',
+    laptopId: 'laptop-1',
+    laptopCode: 'C10410009',
+    laptopModel: 'Dell Inspiron 3520, 15.6\"',
+    date: '2026-08-01',
+    startTime: '10:00',
+    endTime: '12:30',
+    durationMinutes: 150,
+    status: 'completed',
+    qrCodeValue: 'SPACELAP-req-1',
+    createdAt: '2026-08-01T10:00:00.000Z',
+  },
+  {
+    id: 'req-2',
+    laptopId: 'laptop-3',
+    laptopCode: 'C10210026',
+    laptopModel: 'Lenovo ThinkPad E14',
+    date: '2026-07-31',
+    startTime: '09:00',
+    endTime: '12:45',
+    durationMinutes: 225,
+    status: 'completed',
+    qrCodeValue: 'SPACELAP-req-2',
+    createdAt: '2026-07-31T09:00:00.000Z',
+  },
+  ];
