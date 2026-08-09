@@ -100,22 +100,30 @@ export const NewBookingWizard: React.FC<NewBookingWizardProps> = ({ initialLapto
                     <div
                       key={laptop.id}
                       onClick={() => setSelectedLaptop(laptop)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                      className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
                         isSelected
                           ? 'bg-[#00F0FF]/15 border-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.2)]'
                           : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
                       }`}
                     >
-                      <div className="flex items-center space-x-3">
-                        <LaptopIcon className={`w-8 h-8 ${isSelected ? 'text-[#00F0FF]' : 'text-slate-500'}`} />
+                      <div className="flex items-center space-x-3.5">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 border border-white/10 flex-shrink-0 relative">
+                          {laptop.imageUrl ? (
+                            <img src={laptop.imageUrl} alt={laptop.name} className="w-full h-full object-cover object-center" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <LaptopIcon className={`w-6 h-6 ${isSelected ? 'text-[#00F0FF]' : 'text-slate-500'}`} />
+                            </div>
+                          )}
+                        </div>
                         <div>
-                          <p className="text-xs font-bold text-[#00F0FF]">{laptop.brand}</p>
-                          <h4 className="text-sm font-extrabold text-white">{laptop.name}</h4>
-                          <p className="text-[11px] text-slate-400">{laptop.processor} · {laptop.ram}</p>
+                          <p className="text-[10px] uppercase font-extrabold text-[#00F0FF]">{laptop.brand}</p>
+                          <h4 className="text-xs font-extrabold text-white">{laptop.name}</h4>
+                          <p className="text-[10px] text-slate-400 font-medium">{laptop.processor} · {laptop.ram}</p>
                         </div>
                       </div>
                       {isSelected && (
-                        <div className="w-6 h-6 bg-[#00F0FF] text-black rounded-full flex items-center justify-center font-bold">
+                        <div className="w-6 h-6 bg-[#00F0FF] text-black rounded-full flex items-center justify-center font-bold flex-shrink-0">
                           <Check className="w-4 h-4" />
                         </div>
                       )}

@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ user }) => {
   return (
-    <div className="pt-7 pb-3 px-5 bg-[#090A0F]/90 backdrop-blur-xl border-b border-white/10 flex items-center justify-between shadow-lg select-none z-20">
+    <div className="py-3.5 px-5 bg-[#090A0F]/90 backdrop-blur-xl border-b border-white/10 flex items-center justify-between shadow-lg select-none z-20">
       <div className="flex items-center space-x-2.5">
         <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#00F0FF] to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.4)]">
           <Laptop className="w-5 h-5 text-black" />

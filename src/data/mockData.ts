@@ -74,7 +74,7 @@ export const availableLaptops: Laptop[] = [
     rating: '4.9 ★',
     category: 'macbook',
     labRoom: 'Lab 302 - Edificio V',
-    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/images/macbook_pro_16.png',
     available: true,
     featured: true,
     availableSlots: [
@@ -106,7 +106,7 @@ export const availableLaptops: Laptop[] = [
     rating: '4.8 ★',
     category: 'gaming',
     labRoom: 'Pabellón N - AI Lab',
-    imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/images/asus_rog_zephyrus.png',
     available: true,
     featured: true,
     availableSlots: [
@@ -138,7 +138,7 @@ export const availableLaptops: Laptop[] = [
     rating: '4.9 ★',
     category: 'popular',
     labRoom: 'Biblioteca Central - N2',
-    imageUrl: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/images/lenovo_thinkpad_p1.png',
     available: true,
     featured: true,
     availableSlots: [
@@ -169,7 +169,7 @@ export const availableLaptops: Laptop[] = [
     rating: '4.7 ★',
     category: 'ultrabook',
     labRoom: 'Lab 304 - Edificio V',
-    imageUrl: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/images/dell_xps_16.png',
     available: true,
     featured: false,
     availableSlots: [
@@ -199,7 +199,7 @@ export const availableLaptops: Laptop[] = [
     rating: '4.8 ★',
     category: 'macbook',
     labRoom: 'Biblioteca Central - quiet zone',
-    imageUrl: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/images/macbook_air_lineup.png',
     available: true,
     featured: false,
     availableSlots: [

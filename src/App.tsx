@@ -75,7 +75,7 @@ export function App() {
           }`}
         >
           <Smartphone className="w-3.5 h-3.5" />
-          <span>Móvil iPhone</span>
+          <span>Vista Móvil</span>
         </button>
         <button
           onClick={() => setIsPhoneFrame(false)}
@@ -98,17 +98,6 @@ export function App() {
             : 'min-h-screen max-w-md rounded-3xl shadow-2xl border border-white/10'
         }`}
       >
-        {/* iPhone Dynamic Island Bar */}
-        {isPhoneFrame && (
-          <div className="dynamic-island">
-            <span className="text-[10px] font-bold text-white font-mono pl-1">9:41</span>
-            <div className="w-3 h-3 rounded-full bg-slate-900 border border-white/20" />
-            <div className="flex items-center space-x-1 pr-1 text-slate-400">
-              <Wifi className="w-3 h-3" />
-            </div>
-          </div>
-        )}
-
         {!isAuthenticated ? (
           <LoginScreen onLogin={handleLogin} />
         ) : (

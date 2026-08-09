@@ -22,15 +22,15 @@ export const LaptopHero: React.FC<LaptopHeroProps> = ({ laptop, size = 'card', c
         <img
           src={laptop.imageUrl}
           alt={laptop.name}
-          className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 opacity-60"
+          className="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 opacity-90"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#0a1226] to-[#040814]" />
       )}
 
       {/* Dark vignette gradient overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#090A0F] via-[#090A0F]/50 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#090A0F] via-[#090A0F]/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
 
       {/* Top Floating Badges (Matching Dribbble Movie Card Layout) */}
       <div className="absolute top-4 inset-x-4 z-20 flex items-center justify-between">
@@ -47,13 +47,15 @@ export const LaptopHero: React.FC<LaptopHeroProps> = ({ laptop, size = 'card', c
         </div>
       </div>
 
-      {/* Center Laptop Glyph Artwork */}
-      <div className="absolute inset-0 flex items-center justify-center p-6 z-10 pointer-events-none">
-        <LaptopGlyph
-          brand={laptop.brand}
-          className="w-3/5 max-w-[200px] drop-shadow-[0_20px_35px_rgba(0,240,255,0.25)] opacity-90 group-hover:scale-105 transition-transform duration-500"
-        />
-      </div>
+      {/* Center Laptop Glyph Artwork (Only if no photo available) */}
+      {!laptop.imageUrl && (
+        <div className="absolute inset-0 flex items-center justify-center p-6 z-10 pointer-events-none">
+          <LaptopGlyph
+            brand={laptop.brand}
+            className="w-3/5 max-w-[200px] drop-shadow-[0_20px_35px_rgba(0,240,255,0.25)] opacity-90 group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
 
       {/* Bottom Glass Card Overlay (Matching Dribbble Video 1 & 2) */}
       <div className="absolute bottom-3 inset-x-3 z-20 p-4 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/15 shadow-2xl flex flex-col justify-between space-y-1.5">
